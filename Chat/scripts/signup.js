@@ -33,12 +33,8 @@ SignUp.prototype.submit = function(e) {
     if(enteredEmail && enteredPassword){
         this.auth.createUserWithEmailAndPassword(enteredEmail, enteredPassword)
             .then(function(user){
-                console.log(this);
-                console.log(this.database);
-                firebase.usersRef = firebase.database().ref('users');
-                firebase.usersRef.set(
+                this.database.ref('users/' + user.uid).set(
                     {
-                        uid: user.uid,
                         username: user.displayName || "Unnamed User",
                         photoURL: user.photoURL || "./images/profile_placeholder.jpg",
                         email: enteredEmail,
@@ -46,13 +42,12 @@ SignUp.prototype.submit = function(e) {
                         location: enteredLocation,
                     }
                 ).then(function(snapshot) {
-                    alert(snapshot.val());
                     window.location = "./";
                 }.bind(this)).catch(function(err){
                     console.error('Error creating user ', err);
                     alert('Sorry, this server error occurred:\n' + err);
                 })
-            })
+            }.bind(this))
             .catch(function(error) {
                 var errorCode = error.code;
                 var errorMessage = error.message;
