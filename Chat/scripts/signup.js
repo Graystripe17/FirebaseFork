@@ -3,6 +3,7 @@
 function SignUp() {
     this.submitForm = document.getElementById('submitForm');
     this.submitButton = document.getElementById('submitButton');
+    this.usernameInput = document.getElementById('username-input');
     this.emailInput = document.getElementById('email-input');
     this.locationInput = document.getElementById('location-input');
     this.passwordInput = document.getElementById('password-input');
@@ -24,18 +25,18 @@ SignUp.prototype.initFirebase = function() {
 
 SignUp.prototype.submit = function(e) {
     e.preventDefault();
+    var enteredUserName = this.usernameInput.value;
     var enteredEmail = this.emailInput.value;
     var enteredLocation = this.locationInput.value;
     var enteredPassword = this.passwordInput.value;
 
     // Required, will redirect
     // TODO: Simplify this nested promise
-    if(enteredEmail && enteredPassword){
+    if(enteredEmail && enteredPassword && enteredUserName){
         this.auth.createUserWithEmailAndPassword(enteredEmail, enteredPassword)
             .then(function(user){
-                this.database.ref('users/' + user.uid).set(
+                this.database.ref('users/' + enteredUserName).set(
                     {
-                        username: user.displayName || "Unnamed User",
                         photoURL: user.photoURL || "./images/profile_placeholder.jpg",
                         email: enteredEmail,
                         // Do not pass in password for security reasons
