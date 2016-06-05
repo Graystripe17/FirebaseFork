@@ -35,18 +35,19 @@ SignUp.prototype.submit = function(e) {
     if(enteredEmail && enteredPassword && enteredUserName){
         this.auth.createUserWithEmailAndPassword(enteredEmail, enteredPassword)
             .then(function(user){
-                this.database.ref('users/' + enteredUserName).set(
+                this.database.ref('users/usernames/' + enteredUserName).set(
                     {
                         photoURL: user.photoURL || "./images/profile_placeholder.jpg",
                         email: enteredEmail,
                         // Do not pass in password for security reasons
-                        location: enteredLocation,
+                        location: enteredLocation
                     }
                 ).then(function(snapshot) {
                     window.location = "./";
                 }.bind(this)).catch(function(err){
                     console.error('Error creating user ', err);
-                    alert('Sorry, this server error occurred:\n' + err);
+                    alert('Sorry, this server error occurred:\n' + err +
+                            'If you could kindly contact us with your web browser and any details, we will do our best to fix it. Thanks');
                 })
             }.bind(this))
             .catch(function(error) {
@@ -54,7 +55,7 @@ SignUp.prototype.submit = function(e) {
                 var errorMessage = error.message;
                 console.log(errorCode, errorMessage);
                 alert('Sorry, this creation error occurred\n' + errorCode + "\n" + errorMessage + "\n" +
-                        "If you could kindly contact us with your web browser and any details, we will do our best to fix it. Thanks");
+                        'If you could kindly contact us with your web browser and any details, we will do our best to fix it. Thanks');
             });
     }
 
