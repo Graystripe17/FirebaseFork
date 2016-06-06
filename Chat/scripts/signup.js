@@ -40,7 +40,7 @@ SignUp.prototype.submit = function(e) {
                         photoURL: user.photoURL || "./images/profile_placeholder.jpg",
                         email: enteredEmail,
                         // Do not pass in password for security reasons
-                        location: enteredLocation
+                        location: enteredLocation || "Unspecified"
                     }
                 ).then(function(snapshot) {
                     window.location = "./";
