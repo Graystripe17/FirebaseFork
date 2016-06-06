@@ -432,7 +432,7 @@ FriendlyChat.prototype.queryUsers = function(e) {
         this.anonChatButton.onclick = function(){
           // Another solution would involve adding and subtracting is-active class attributes
           console.log('Switching to chat');
-          this.getElementById('chat').click();
+          document.getElementById('chat').click();
         }
       }
     }.bind(this)).catch(function(err){
