@@ -425,16 +425,16 @@ FriendlyChat.prototype.queryUsers = function(e) {
         console.log(found_user);
         // Populate view card
         // Hackish solution: populate display with query text instead of root JSON
-        this.displayNameText.innerHTML = queryText;
+        var selected_user_display_name = queryText;
+        this.displayNameText.innerHTML = selected_user_display_name;
         this.locationText.innerHTML = found_user.location;
         this.resultCard.style.backgroundImage = 'url(' + found_user.photoURL + ')';
         // Overwrite by linking them to profile
         this.anonChatButton.onclick = function(){
           // Another solution would involve adding and subtracting is-active class attributes
           console.log('Switching to chat');
-          document.getElementById('chat-anchor-label').click();
-          //this.startNewChat();
-        }
+          this.startNewChat(selected_user_display_name);
+        }.bind(this);
       }
     }.bind(this)).catch(function(err){
       console.error('Error finding users', err);
@@ -442,12 +442,38 @@ FriendlyChat.prototype.queryUsers = function(e) {
   }
 };
 
-FriendlyChat.prototype.startNewChat = function() {
+FriendlyChat.prototype.startNewChat = function(host_display_name) {
   var currentUser = this.auth.currentUser;
   var chatRef = this.database.ref('chats');
-  chatRef.push({
+  var usernamesRef = this.database.ref('users/usernames');
 
-  });
+  var chat_meta_data = {
+    anon: currentUser.displayName,
+    host: host_display_name,
+    time: Date.now(),
+    lastMessage: ""
+  };
+
+  // Only grab unique ID to update into users
+  // key is the name of the head node, or ID
+  var pushKey = chatRef.push(chat_meta_data).key;
+
+  var updates = {};
+  updates['/'+ host_display_name + '/chats/' + pushKey] = chat_meta_data;
+  updates['/' + currentUser.displayName + '/'] = chat_meta_data;
+  return usernamesRef.update(updates);
+
+
+  // Use the push key to update
+  blah.then(function(chat_data){
+    // TODO: Snackbar to remind user of anonymity
+    var firstUserRef = this.database.ref('users/usernames/'+currentUser.displayName+'/conversations');
+    firstUserRef.
+    document.getElementById('chat-anchor-label').click();
+  }.bind(this)).catch(function(err){
+      console.log(err);
+    }
+  );
 };
 
 
