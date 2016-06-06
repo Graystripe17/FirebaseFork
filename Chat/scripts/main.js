@@ -432,13 +432,22 @@ FriendlyChat.prototype.queryUsers = function(e) {
         this.anonChatButton.onclick = function(){
           // Another solution would involve adding and subtracting is-active class attributes
           console.log('Switching to chat');
-          document.getElementById('chat').click();
+          document.getElementById('chat-anchor-label').click();
+          //this.startNewChat();
         }
       }
     }.bind(this)).catch(function(err){
       console.error('Error finding users', err);
     })
   }
+};
+
+FriendlyChat.prototype.startNewChat = function() {
+  var currentUser = this.auth.currentUser;
+  var chatRef = this.database.ref('chats');
+  chatRef.push({
+
+  });
 };
 
 
