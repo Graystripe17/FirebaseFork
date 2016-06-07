@@ -293,11 +293,11 @@ FriendlyChat.MESSAGE_TEMPLATE =
       '<div class="name"></div>' +
     '</div>';
 // Template for find results
-FriendlyChat.FIND_TEMPLATE =
-    '<div class="result-container">' +
-        '<div class="spacing"><div class="pic"</div></div>' +
-        '<div class="result"></div>' +
-        '<div class="name"></div>' +
+FriendlyChat.CHAT_TEMPLATE =
+    '<div class="chat-container">' +
+        '<div class="spacing"><div class="meta-pic"</div></div>' +
+        '<div class="last-message"></div>' +
+        '<div class="meta-name"></div>' +
     '</div>' +
     '<a class="mdl-list__item-secondary-action" href="#">' +
         '<i class="material-icons">star</i>' +
@@ -468,6 +468,7 @@ FriendlyChat.prototype.startNewChat = function(host_display_name, host_profile_u
   var updates = {};
   var host_object = {
     host: true,
+    profileName: host_display_name,
     profileUrl: host_profile_url
   };
   // Pack in extra meta data of profile Url for quick population
@@ -486,14 +487,14 @@ FriendlyChat.prototype.loadConversations = function() {
     // data.key represents the chatID
     // val is the childre, or single instance child 'host': true or false
     var val = data.val();
-    this.displayConversation(data.key, val.host);
+    this.displayConversation(data.key, val.host, val.hostName, val.profileUrl);
   }.bind(this);
   // Puts a listener function on the list and displays each item
   userChatRef.limitToLast(20).on('child_added', setConversation);
   userChatRef.limitToLast(20).on('child_changed', setConversation);
 };
 
-FriendlyChat.prototype.displayConversation = function(key, isHost) {
+FriendlyChat.prototype.displayConversation = function(key, isHost, profileName, profileUrl) {
   var div = document.getElementById(key);
   // Create if DNE
   if(!div) {
@@ -505,10 +506,12 @@ FriendlyChat.prototype.displayConversation = function(key, isHost) {
   }
   if(isHost){
     // Asker profile picture is Anonymous
+    div.querySelector('.meta-name').textContent = "Anon";
 
   } else {
     // You are the anonymous talking to a known user
-
+    div.querySelector('.meta-name').textContent = profileName;
+    div.querySelector('.meta-pic').style.backgroundImage = 'url(' + profileUrl + ')';
   }
 };
 
