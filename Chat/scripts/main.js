@@ -47,7 +47,7 @@ function FriendlyChat() {
   this.locationText = document.getElementById('location-text');
   this.anonChatButton = document.getElementById('anon-chat-button');
   this.viewProfileButton = document.getElementById('view-profile-button');
-
+  //this.conversationList = document.getElementById('conversation-list');
 
 
   // Saves message on form submit.
@@ -504,7 +504,7 @@ FriendlyChat.prototype.displayConversation = function(key, isHost, profileName, 
     div.setAttribute('id', key);
     this.conversationList.appendChild(div);
   }
-  var chatElement = div.querySelector('.chat');
+  var chatElement = div.querySelector('.chats');
   if(isHost){
     // Asker profile picture is Anonymous
     div.querySelector('.meta-name').textContent = "Anon";
