@@ -487,7 +487,7 @@ FriendlyChat.prototype.loadConversations = function() {
     // data.key represents the chatID
     // val is the childre, or single instance child 'host': true or false
     var val = data.val();
-    this.displayConversation(data.key, val.host, val.hostName, val.profileUrl);
+    this.displayConversation(data.key, val.host, val.profileName, val.profileUrl);
   }.bind(this);
   // Puts a listener function on the list and displays each item
   userChatRef.limitToLast(20).on('child_added', setConversation);
@@ -504,15 +504,18 @@ FriendlyChat.prototype.displayConversation = function(key, isHost, profileName, 
     div.setAttribute('id', key);
     this.conversationList.appendChild(div);
   }
+  var chatElement = div.querySelector('.chat');
   if(isHost){
     // Asker profile picture is Anonymous
     div.querySelector('.meta-name').textContent = "Anon";
-
   } else {
     // You are the anonymous talking to a known user
     div.querySelector('.meta-name').textContent = profileName;
     div.querySelector('.meta-pic').style.backgroundImage = 'url(' + profileUrl + ')';
   }
+  div.addEventListener('click', function(){
+    this.loadMessages(key);
+  });
 };
 
 window.onload = function() {
