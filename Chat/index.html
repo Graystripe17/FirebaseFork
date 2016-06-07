@@ -131,11 +131,18 @@
         <div class="page-content">
 
 
-          <div class="mdl-layout__content mdl-color--grey-100">
             <!--Chat Selection-->
-            <div>
-
-            </div>
+            <ul id="chat-list" class="mdl-list">
+              <li>
+                <span class="mdl-list__item-primary-content">
+                  <i class="material-icons mdl-list__item-avatar">person</i>
+                  <span>Placeholder Name</span>
+                </span>
+                <a class="mdl=list__item-secondary-content" href="#">
+                  <i class="material-icons">star border</i>
+                </a>
+              </li>
+            </ul>
             <!--Messages App, initially hidden-->
             <div id="messages-card-container" class="mdl-cell mdl-cell--12-col mdl-grid">
               <!-- Messages container -->
@@ -164,7 +171,7 @@
                     <input type="checkbox" id="switch-1" class="mdl-switch__input">
                     <span class="mdl-switch__label">Anon</span>
                   </label>
-                  <label id="public" class="mdl-switch mdl-js-switch mdl-js-ripple-effect mdl-cell--3-col" for="switch-1" >
+                  <label id="public" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1" >
                     <input type="checkbox" id="switch-2" class="mdl-switch__input">
                     <span class="mdl-switch__label">Public</span>
                   </label>
@@ -177,44 +184,43 @@
               </div>
 
             </div>
-          </div>
-
-
         </div>
       </section>
 
-
-      <!--Find-->
       <section class="mdl-layout__tab-panel" id="find">
-        <!-- start search form -->
-        <form id="find-form" action="#">
-          <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label">
-            <input class="mdl-textfield__input" type="text" id="query">
-            <label class="mdl-textfield__label" for="query">Find People</label>
-          </div>
-          <button id="user-search" disabled type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
-            Find
-          </button>
-        </form>
-        <!-- end search form -->
-        <!-- start result list -->
-        <div id="results-card" class="winston-card-square mdl-card mdl-shadow--2dp">
-          <div id="display-name-text" class="mdl-card__title mdl-card--expand">
-            <h2 class="mdl-card__title-text">Display Name</h2>
-          </div>
-          <div id="location-text" class="mdl-card__supporting-text">
-            From Location
-          </div>
-          <div class="mdl-card__actions mdl-card--border">
-            <button id="anon-chat-button" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-              Anon Chat
+
+        <!--Find-->
+        <div class="page-content">
+          <!--start search form -->
+          <form id="find-form" action="#">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="query">
+              <label class="mdl-textfield__label" for="query">Find People</label>
+            </div>
+            <button id="user-search" disabled type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+              Find
             </button>
-            <button id="view-profile-button" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-              View Profile
-            </button>
+          </form>
+          <!-- end search form -->
+          <!-- start result list -->
+          <div id="results-card" class="winston-card-square mdl-card mdl-shadow--2dp">
+            <div id="display-name-text" class="mdl-card__title mdl-card--expand">
+              <h2 class="mdl-card__title-text">Display Name</h2>
+            </div>
+            <div id="location-text" class="mdl-card__supporting-text">
+              From Location
+            </div>
+            <div class="mdl-card__actions mdl-card--border">
+              <button id="anon-chat-button" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+                Anon Chat
+              </button>
+              <button id="view-profile-button" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+                View Profile
+              </button>
+            </div>
           </div>
+          <!-- end result list -->
         </div>
-        <!-- end result list -->
       </section>
 
 
@@ -222,7 +228,7 @@
       <section class="mdl-layout__tab-panel" id="ship">
         <div class="page-content">
           <!--Find someone you like-->
-          <!--Ship your friends-->
+
 
         </div>
       </section>

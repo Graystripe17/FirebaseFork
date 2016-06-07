@@ -79,6 +79,11 @@ function FriendlyChat() {
 
 
   this.initFirebase();
+
+  this.loadMessages();
+
+  // Refresh
+  this.onAuthStateChanged();
 }
 
 // Sets up shortcuts to Firebase features and initiate firebase auth.
@@ -91,13 +96,14 @@ FriendlyChat.prototype.initFirebase = function() {
 };
 
 // Loads chat messages history and listens for upcoming ones.
-FriendlyChat.prototype.loadMessages = function() {
+FriendlyChat.prototype.loadMessages = function(chatID) {
 
   // Reference to the /messages/ database path.
-  this.messagesRef = this.database.ref('messages');
+  this.messagesRef = this.database.ref('messages/' + chatID);
   // Make sure we remove all previous listeners.
   this.messagesRef.off();
   // Loads the last 12 messages and listen for new ones.
+  // data represents a messageID
   var setMessage = function(data) {
     var val = data.val();
     this.displayMessage(data.key, val.name, val.text, val.photoUrl, val.imageUrl);
@@ -117,7 +123,7 @@ FriendlyChat.prototype.saveMessage = function(e) {
     // Updates Firebase database
     this.messagesRef.push(
         {
-          name: currentUser.displayName,
+          name: currentUser.displayName || 'User' + currentUser.uid,
           text: this.messageInput.value,
           photoUrl: currentUser.photoURL || '/images/profile_placeholder.png'
         }
@@ -199,8 +205,8 @@ FriendlyChat.prototype.signIn = function(googleUser) {
     var token = result.credential.accessToken;
     var user = result.user;
     console.log(user);
-    var signedInUserName = user.displayName || 'User_Google_'+user.uid;
-    this.googleRef = this.database.ref('users/usernames/'+signedInUserName);
+    var displayName = user.displayName || 'User' + user.uid;
+    this.googleRef = this.database.ref('users/usernames/'+displayName);
     this.googleRef.set(
         {
           photoURL: user.photoURL,
@@ -229,13 +235,11 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
   if (user) { // User is signed in!
     // Get profile pic and user's name from the Firebase user object.
     var profilePicUrl = user.photoURL;
-    var userName = user.displayName;
-
+    var userName = user.displayName || "User" + user.uid;
 
     // Set the user's profile pic and name.
     this.userPic.style.backgroundImage = 'url(' + profilePicUrl + ')';
     this.userName.textContent = userName;
-    this.globalUID = user.uid;
 
     // Show user's profile and sign-out button.
     this.userName.removeAttribute('hidden');
@@ -247,8 +251,6 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     this.signInEmailButton.setAttribute('hidden', 'true');
     this.signUpButton.setAttribute('hidden', 'true');
 
-    // We load currently existing chat messages.
-    this.loadMessages();
   } else { // User is signed out!
     // Hide user's profile and sign-out button.
     this.userName.setAttribute('hidden', 'true');
@@ -260,7 +262,6 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     this.signInEmailButton.removeAttribute('hidden');
     this.signUpButton.removeAttribute('hidden');
 
-    this.globalUID = "anonymous";
   }
 };
 
@@ -335,7 +336,7 @@ FriendlyChat.prototype.displayMessage = function(key, name, text, picUrl, imageU
     messageElement.appendChild(image);
   }
   // Show the card fading-in.
-  setTimeout(function() {div.classList.add('visible')}, 1);
+  setTimeout(function() {div.classList.add('visible')}, 0.5);
   this.messageList.scrollTop = this.messageList.scrollHeight;
   this.messageInput.focus();
 };
@@ -407,7 +408,6 @@ FriendlyChat.prototype.signUpEmail = function() {
 FriendlyChat.prototype.queryUsers = function(e) {
     console.log("queryUsers");
     e.preventDefault();
-
   var queryText = this.findInput.value;
   if (queryText) {
     var currentUser = this.auth.currentUser;
@@ -433,7 +433,8 @@ FriendlyChat.prototype.queryUsers = function(e) {
         this.anonChatButton.onclick = function(){
           // Another solution would involve adding and subtracting is-active class attributes
           console.log('Switching to chat');
-          this.startNewChat(selected_user_display_name);
+          this.startNewChat(selected_user_display_name, found_user.photoURL);
+          document.getElementById('chat-anchor-label').click();
         }.bind(this);
       }
     }.bind(this)).catch(function(err){
@@ -442,41 +443,76 @@ FriendlyChat.prototype.queryUsers = function(e) {
   }
 };
 
-FriendlyChat.prototype.startNewChat = function(host_display_name) {
+FriendlyChat.prototype.startNewChat = function(host_display_name, host_profile_url) {
   var currentUser = this.auth.currentUser;
+  // Explicit variable grabs a read only value
+  var current_user_display_name = this.auth.currentUser.displayName || 'User' + this.auth.currentUser.uid;
   var chatRef = this.database.ref('chats');
   var usernamesRef = this.database.ref('users/usernames');
 
+  console.log(currentUser);
   var chat_meta_data = {
-    anon: currentUser.displayName,
+    anon: current_user_display_name,
     host: host_display_name,
     time: Date.now(),
     lastMessage: ""
   };
 
   // Only grab unique ID to update into users
-  // key is the name of the head node, or ID
+  // Key is the name of the head node, or ID
+  // in the chats node
   var pushKey = chatRef.push(chat_meta_data).key;
 
+  console.log(currentUser);
+  console.log('Pushing to users ' + host_display_name + ' and ' + current_user_display_name);
   var updates = {};
-  updates['/'+ host_display_name + '/chats/' + pushKey] = chat_meta_data;
-  updates['/' + currentUser.displayName + '/'] = chat_meta_data;
-  return usernamesRef.update(updates);
-
-
-  // Use the push key to update
-  blah.then(function(chat_data){
-    // TODO: Snackbar to remind user of anonymity
-    var firstUserRef = this.database.ref('users/usernames/'+currentUser.displayName+'/conversations');
-    firstUserRef.
-    document.getElementById('chat-anchor-label').click();
-  }.bind(this)).catch(function(err){
-      console.log(err);
-    }
-  );
+  var host_object = {
+    host: true,
+    profileUrl: host_profile_url
+  };
+  // Pack in extra meta data of profile Url for quick population
+  updates[host_display_name + '/chats/' + pushKey] = host_object;
+  updates[current_user_display_name + '/chats/' + pushKey + '/host'] = false;
+  this.loadMessages(pushKey);
+  return usernamesRef.update(updates).catch(function(err){
+    console.log(err);
+  });
 };
 
+FriendlyChat.prototype.loadConversations = function() {
+  var username = this.auth.currentUser.displayName || 'User' + this.auth.currentUser.uid;
+  var userChatRef = this.database.ref('users/usernames/' + username + '/chats');
+  var setConversation = function(data){
+    // data.key represents the chatID
+    // val is the childre, or single instance child 'host': true or false
+    var val = data.val();
+    this.displayConversation(data.key, val.host);
+  }.bind(this);
+  // Puts a listener function on the list and displays each item
+  userChatRef.limitToLast(20).on('child_added', setConversation);
+  userChatRef.limitToLast(20).on('child_changed', setConversation);
+};
+
+FriendlyChat.prototype.displayConversation = function(key, isHost) {
+  var div = document.getElementById(key);
+  // Create if DNE
+  if(!div) {
+    var container = document.createElement('div');
+    container.innerHTML = FriendlyChat.CHAT_TEMPLATE;
+    div = container.firstChild;
+    div.setAttribute('id', key);
+    this.conversationList.appendChild(div);
+  }
+  if(isHost){
+    // Asker profile picture is Anonymous
+
+  } else {
+    // You are the anonymous talking to a known user
+
+  }
+};
 
 window.onload = function() {
+  console.log('Window loaded');
   window.friendlyChat = new FriendlyChat();
 };
