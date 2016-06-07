@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 'use strict';
 
 // Initializes FriendlyChat.
 function FriendlyChat() {
   this.checkSetup();
+
+  this.initFirebase();
 
   // Shortcuts to DOM Elements.
   this.messageList = document.getElementById('messages');
@@ -47,7 +50,7 @@ function FriendlyChat() {
   this.locationText = document.getElementById('location-text');
   this.anonChatButton = document.getElementById('anon-chat-button');
   this.viewProfileButton = document.getElementById('view-profile-button');
-  //this.conversationList = document.getElementById('conversation-list');
+  this.conversationList = document.getElementById('chats');
 
 
   // Saves message on form submit.
@@ -78,9 +81,9 @@ function FriendlyChat() {
   this.mediaCapture.addEventListener('change', this.saveImageMessage.bind(this));
 
 
-  this.initFirebase();
 
-  this.loadMessages();
+
+  // this.loadMessages();
 
   // Refresh
   this.onAuthStateChanged();
@@ -251,6 +254,9 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     this.signInEmailButton.setAttribute('hidden', 'true');
     this.signUpButton.setAttribute('hidden', 'true');
 
+    // When put here, we know firebase is done configuring
+    this.loadConversations();
+
   } else { // User is signed out!
     // Hide user's profile and sign-out button.
     this.userName.setAttribute('hidden', 'true');
@@ -410,6 +416,7 @@ FriendlyChat.prototype.queryUsers = function(e) {
     e.preventDefault();
   var queryText = this.findInput.value;
   if (queryText) {
+    // Hopefully firebase init has completed
     var currentUser = this.auth.currentUser;
     // Query Firebase database
     this.resultsRef = this.database.ref('users/usernames/'+queryText);
@@ -446,16 +453,18 @@ FriendlyChat.prototype.queryUsers = function(e) {
 FriendlyChat.prototype.startNewChat = function(host_display_name, host_profile_url) {
   var currentUser = this.auth.currentUser;
   // Explicit variable grabs a read only value
-  var current_user_display_name = this.auth.currentUser.displayName || 'User' + this.auth.currentUser.uid;
+  var current_user_display_name = this.auth.currentUser.displayName || ('User' + this.auth.currentUser.uid);
   var chatRef = this.database.ref('chats');
   var usernamesRef = this.database.ref('users/usernames');
 
-  console.log(currentUser);
+
   var chat_meta_data = {
     anon: current_user_display_name,
     host: host_display_name,
     time: Date.now(),
-    lastMessage: ""
+    lastMessage: "",
+    hostProfileName: host_display_name,
+    hostProfileUrl: host_profile_url
   };
 
   // Only grab unique ID to update into users
@@ -463,16 +472,10 @@ FriendlyChat.prototype.startNewChat = function(host_display_name, host_profile_u
   // in the chats node
   var pushKey = chatRef.push(chat_meta_data).key;
 
-  console.log(currentUser);
   console.log('Pushing to users ' + host_display_name + ' and ' + current_user_display_name);
   var updates = {};
-  var host_object = {
-    host: true,
-    profileName: host_display_name,
-    profileUrl: host_profile_url
-  };
   // Pack in extra meta data of profile Url for quick population
-  updates[host_display_name + '/chats/' + pushKey] = host_object;
+  updates[host_display_name + '/chats/' + pushKey + '/host'] = true;
   updates[current_user_display_name + '/chats/' + pushKey + '/host'] = false;
   this.loadMessages(pushKey);
   return usernamesRef.update(updates).catch(function(err){
@@ -481,30 +484,61 @@ FriendlyChat.prototype.startNewChat = function(host_display_name, host_profile_u
 };
 
 FriendlyChat.prototype.loadConversations = function() {
-  var username = this.auth.currentUser.displayName || 'User' + this.auth.currentUser.uid;
-  var userChatRef = this.database.ref('users/usernames/' + username + '/chats');
+  // TODO: Link promises in a chain
+  console.log("loadConversations");
+  // Given display name, populate a list of conversation metadata
+  console.log(this.auth);
+  var username;
+  if(this.checkSignedInWithMessage()) {
+    username = this.auth.currentUser.displayName || 'User' + this.auth.currentUser.uid;
+    console.log("HI");
+    console.log(username);
+    var userChatRef = this.database.ref('users/usernames/' + username + '/chats');
+    userChatRef.once('value').then(function (snapshot) {
+      var list_of_chats = snapshot.val();
+      for (var i = 0; i < list_of_chats.childElementCount; i++) {
+        var targetChatRef = this.database.ref('chats/' + snapshot[i]);
+        targetChatRef.once('value').then(function (info) {
+          var chatObject = info.val();
+          this.displayConversation(info.key, chatObject.host, chatObject.hostProfileName, chatObject.hostProfileUrl, chatObject.lastMessage);
+        }.bind(this));
+      }
+    }.bind(this));
+  }
+  // Dynamic updates
+  /*
   var setConversation = function(data){
-    // data.key represents the chatID
-    // val is the childre, or single instance child 'host': true or false
-    var val = data.val();
-    this.displayConversation(data.key, val.host, val.profileName, val.profileUrl);
+    // Now use chatRef to pluck the metadata
+    // Beware of the nested database reads, this can slow down performance
+    // Similar to table JOIN
+    var chatRef = this.database.ref('chats/' + data.key);
+    console.log("DATAKEY", data.key);
+    // CHILD_CHANGED
+    chatRef.on('child_added', function(snapshot){
+      var val = snapshot.val();
+      this.displayConversation(data.key, val.host, val.profileName, val.profileUrl, val.lastMessage);
+    }.bind(this));
   }.bind(this);
-  // Puts a listener function on the list and displays each item
-  userChatRef.limitToLast(20).on('child_added', setConversation);
-  userChatRef.limitToLast(20).on('child_changed', setConversation);
+  // Puts a listener function on the list and displays each item (iterates)
+  userChatRef.limitToLast(12).on('child_added', function(){console.log("HI");});
+  userChatRef.limitToLast(12).on('child_changed', setConversation);
+  */
 };
 
-FriendlyChat.prototype.displayConversation = function(key, isHost, profileName, profileUrl) {
+FriendlyChat.prototype.displayConversation = function(key, isHost, profileName, profileUrl, lastMessage) {
+  console.log("displayConversation");
   var div = document.getElementById(key);
   // Create if DNE
   if(!div) {
+    console.log("New div");
     var container = document.createElement('div');
     container.innerHTML = FriendlyChat.CHAT_TEMPLATE;
     div = container.firstChild;
     div.setAttribute('id', key);
     this.conversationList.appendChild(div);
   }
-  var chatElement = div.querySelector('.chats');
+  var lastMessage = div.querySelector('.last-message');
+  lastMessage.textContent = lastMessage;
   if(isHost){
     // Asker profile picture is Anonymous
     div.querySelector('.meta-name').textContent = "Anon";
