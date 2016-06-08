@@ -91,13 +91,16 @@
         <button hidden id="sign-in-google" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white">
           <i class="material-icons">account_circle</i>Sign-in with Google
         </button>
-        <form>
-          <label>Email </label>
-            <input id="email-input" type="email"/>
-          <label>Password </label>
-            <input id="password-input" type="password"/>
-          <button id="sign-in-email" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white"><i class="material-icons">face</i>Sign Up</button>
-        </form>
+        <!--Sign In-->
+        <div id="sign-in-email-form">
+          <form>
+            <label>Email </label>
+              <input id="email-input" type="email"/>
+            <label>Password </label>
+              <input id="password-input" type="password"/>
+            <button id="sign-in-email" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white"><i class="material-icons">face</i>Sign Up</button>
+          </form>
+        </div>
 
         <button hidden id="sign-up-email" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--orange">
           Sign Up with Email
@@ -148,7 +151,7 @@
             <!--<div id="chats">-->
               <!--<span id="chat-filler"></span>-->
             <!--</div>-->
-            <!-- Clone -->
+            <!--List Conversations-->
             <div id="chats-card-container" class="mdl-cell mdl-cell--12-col mdl-grid">
               <div id="chats-card" class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--6-col-tablet mdl-cel--12-col-desktop">
                 <div class="mdl-card__supporting-text mdl-color-text--grey-600">
@@ -160,7 +163,7 @@
             </div>
 
             <!--Messages App, initially hidden-->
-            <div id="messages-card-container" class="mdl-cell mdl-cell--12-col mdl-grid">
+            <div hidden id="messages-card-container" class="mdl-cell mdl-cell--12-col mdl-grid">
               <!-- Messages container -->
               <div id="messages-card" class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--6-col-tablet mdl-cell--12-col-desktop">
                 <div class="mdl-card__supporting-text mdl-color-text--grey-600">
@@ -229,9 +232,6 @@
             <div class="mdl-card__actions mdl-card--border">
               <button id="anon-chat-button" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
                 Anon Chat
-              </button>
-              <button id="view-profile-button" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-                View Profile
               </button>
             </div>
           </div>

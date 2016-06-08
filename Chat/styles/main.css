@@ -199,3 +199,11 @@ main, #messages-card {
   top: -1px;
   margin-right: 5px;
 }
+
+.chat-container {
+  cursor: pointer;
+}
+
+.chat-container:hover {
+
+}

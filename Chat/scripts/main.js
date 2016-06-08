@@ -49,8 +49,11 @@ function FriendlyChat() {
   this.displayNameText = document.getElementById('display-name-text');
   this.locationText = document.getElementById('location-text');
   this.anonChatButton = document.getElementById('anon-chat-button');
-  this.viewProfileButton = document.getElementById('view-profile-button');
   this.conversationList = document.getElementById('chats');
+  this.messagesApp = document.getElementById('messages-card-container');
+  this.conversationsApp = document.getElementById('chats-card-container');
+  this.chatAnchorLabel = document.getElementById('chat-anchor-label');
+  this.signInEmailForm = document.getElementById('sign-in-email-form');
 
 
   // Saves message on form submit.
@@ -59,6 +62,7 @@ function FriendlyChat() {
   this.signInGoogleButton.addEventListener('click', this.signIn.bind(this));
   this.signInEmailButton.addEventListener('click', this.signInEmail.bind(this));
   this.signUpButton.addEventListener('click', this.signUpEmail.bind(this));
+  this.chatAnchorLabel.addEventListener('click', this.loadConversations.bind(this));
 
   this.anonToggle.addEventListener('change', this.toggleAnon.bind(this));
   this.publicToggle.addEventListener('change', this.togglePublic.bind(this));
@@ -100,6 +104,11 @@ FriendlyChat.prototype.initFirebase = function() {
 
 // Loads chat messages history and listens for upcoming ones.
 FriendlyChat.prototype.loadMessages = function(chatID) {
+  console.log('loadMessages', chatID);
+
+  this.messagesApp.removeAttribute('hidden');
+  this.conversationsApp.setAttribute('hidden', 'true');
+  this.clearMessages();
 
   // Reference to the /messages/ database path.
   this.messagesRef = this.database.ref('messages/' + chatID);
@@ -108,6 +117,7 @@ FriendlyChat.prototype.loadMessages = function(chatID) {
   // Loads the last 12 messages and listen for new ones.
   // data represents a messageID
   var setMessage = function(data) {
+    console.log('setMessage');
     var val = data.val();
     this.displayMessage(data.key, val.name, val.text, val.photoUrl, val.imageUrl);
   }.bind(this);
@@ -253,6 +263,7 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     this.signInGoogleButton.setAttribute('hidden', 'true');
     this.signInEmailButton.setAttribute('hidden', 'true');
     this.signUpButton.setAttribute('hidden', 'true');
+    this.signInEmailForm.setAttribute('hidden', 'true');
 
     // When put here, we know firebase is done configuring
     this.loadConversations();
@@ -266,6 +277,7 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     // Show sign-in buttons.
     this.signInGoogleButton.removeAttribute('hidden');
     this.signInEmailButton.removeAttribute('hidden');
+    this.signInEmailForm.removeAttribute('hidden');
     this.signUpButton.removeAttribute('hidden');
 
   }
@@ -317,6 +329,7 @@ FriendlyChat.prototype.displayMessage = function(key, name, text, picUrl, imageU
   var div = document.getElementById(key);
   // If an element for that message does not exists yet we create it.
   if (!div) {
+    console.log('New message to display');
     var container = document.createElement('div');
     container.innerHTML = FriendlyChat.MESSAGE_TEMPLATE;
     div = container.firstChild;
@@ -441,7 +454,7 @@ FriendlyChat.prototype.queryUsers = function(e) {
           // Another solution would involve adding and subtracting is-active class attributes
           console.log('Switching to chat');
           this.startNewChat(selected_user_display_name, found_user.photoURL);
-          document.getElementById('chat-anchor-label').click();
+          this.chatAnchorLabel.click();
         }.bind(this);
       }
     }.bind(this)).catch(function(err){
@@ -486,8 +499,10 @@ FriendlyChat.prototype.startNewChat = function(host_display_name, host_profile_u
 FriendlyChat.prototype.loadConversations = function() {
   // TODO: Link promises in a chain
   console.log("loadConversations");
+  this.conversationsApp.removeAttribute('hidden');
+  this.messagesApp.setAttribute('hidden', 'true');
+
   // Given display name, populate a list of conversation metadata
-  console.log(this.auth);
   var username;
   if(this.checkSignedInWithMessage()) {
     username = this.auth.currentUser.displayName || 'User' + this.auth.currentUser.uid;
@@ -497,16 +512,16 @@ FriendlyChat.prototype.loadConversations = function() {
 
     // Dynamic updates
     var setConversation = function(data){
-      // Now use chatRef to pluck the metadata
-      // Beware of the nested database reads, this can slow down performance
-      // Similar to table JOIN
+      console.log(data.key);
+      // data.key is the conversation id
       var chatRef = this.database.ref('chats/' + data.key);
-      console.log("DATAKEY", data.key);
-      // CHILD_CHANGED
-      chatRef.on('child_added', function(snapshot){
-        var val = snapshot.val();
-        this.displayConversation(data.key, val.host, val.profileName, val.profileUrl, val.lastMessage);
-      }.bind(this));
+
+      chatRef.once('value').then(
+          function(snapshot){
+            var val = snapshot.val();
+            this.displayConversation(data.key, val.host === this.auth.currentUser.displayName, val.hostProfileName, val.hostProfileUrl, val.lastMessage);
+          }.bind(this)
+      );
     }.bind(this);
     // Puts a listener function on the list and displays each item (iterates)
     userChatRef.limitToLast(12).on('child_added', setConversation);
@@ -541,9 +556,20 @@ FriendlyChat.prototype.displayConversation = function(key, isHost, profileName, 
     div = container.firstChild;
     div.setAttribute('id', key);
     this.conversationList.appendChild(div);
+    console.log(div);
+    console.log(container);
+    //div.setAttribute('onclick', 'function(){this.loadMessages(key)}.bind(this)');
+    //container.onclick = function(){
+    //  console.log('clicked on ', key);
+    //  this.loadMessages(key);
+    //}.bind(this);
+    $('body').on('click', '#'+key, function(){
+      console.log('clicked!');
+      this.loadMessages(key);
+    }.bind(this));
   }
-  var lastMessage = div.querySelector('.last-message');
-  lastMessage.textContent = lastMessage;
+  var last_message_label = div.querySelector('.last-message');
+  last_message_label.textContent = lastMessage;
   if(isHost){
     // Asker profile picture is Anonymous
     div.querySelector('.meta-name').textContent = "Anon";
@@ -552,7 +578,15 @@ FriendlyChat.prototype.displayConversation = function(key, isHost, profileName, 
     div.querySelector('.meta-name').textContent = profileName;
     div.querySelector('.meta-pic').style.backgroundImage = 'url(' + profileUrl + ')';
   }
-  div.addEventListener('click', this.loadMessages(key));
+  // Need to pass in function
+  div.addEventListener('click', function(){
+    console.log("WTF");
+    this.loadMessages(key);
+  }.bind(this));
+};
+
+FriendlyChat.prototype.clearMessages = function() {
+  $('.message-container').remove();
 };
 
 window.onload = function() {
