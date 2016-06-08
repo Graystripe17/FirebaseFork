@@ -491,38 +491,43 @@ FriendlyChat.prototype.loadConversations = function() {
   var username;
   if(this.checkSignedInWithMessage()) {
     username = this.auth.currentUser.displayName || 'User' + this.auth.currentUser.uid;
-    console.log("HI");
-    console.log(username);
+
     var userChatRef = this.database.ref('users/usernames/' + username + '/chats');
-    userChatRef.once('value').then(function (snapshot) {
-      var list_of_chats = snapshot.val();
-      for (var i = 0; i < list_of_chats.childElementCount; i++) {
-        var targetChatRef = this.database.ref('chats/' + snapshot[i]);
-        targetChatRef.once('value').then(function (info) {
-          var chatObject = info.val();
-          this.displayConversation(info.key, chatObject.host, chatObject.hostProfileName, chatObject.hostProfileUrl, chatObject.lastMessage);
-        }.bind(this));
-      }
-    }.bind(this));
+
+
+    // Dynamic updates
+    var setConversation = function(data){
+      // Now use chatRef to pluck the metadata
+      // Beware of the nested database reads, this can slow down performance
+      // Similar to table JOIN
+      var chatRef = this.database.ref('chats/' + data.key);
+      console.log("DATAKEY", data.key);
+      // CHILD_CHANGED
+      chatRef.on('child_added', function(snapshot){
+        var val = snapshot.val();
+        this.displayConversation(data.key, val.host, val.profileName, val.profileUrl, val.lastMessage);
+      }.bind(this));
+    }.bind(this);
+    // Puts a listener function on the list and displays each item (iterates)
+    userChatRef.limitToLast(12).on('child_added', setConversation);
+    userChatRef.limitToLast(12).on('child_changed', setConversation);
+
+
+    // Serial updates
+    //userChatRef.once('value').then(function (snapshot) {
+    //  var list_of_chats = snapshot.val();
+    //  console.log(list_of_chats);
+    //  for (var i = 0; i < list_of_chats.childElementCount; i++) {
+    //    console.log(snapshot[i]);
+    //    var targetChatRef = this.database.ref('chats/' + snapshot[i]);
+    //    targetChatRef.once('value').then(function (info) {
+    //      var chatObject = info.val();
+    //      this.displayConversation(info.key, chatObject.host, chatObject.hostProfileName, chatObject.hostProfileUrl, chatObject.lastMessage);
+    //    }.bind(this));
+    //  }
+    //}.bind(this));
   }
-  // Dynamic updates
-  /*
-  var setConversation = function(data){
-    // Now use chatRef to pluck the metadata
-    // Beware of the nested database reads, this can slow down performance
-    // Similar to table JOIN
-    var chatRef = this.database.ref('chats/' + data.key);
-    console.log("DATAKEY", data.key);
-    // CHILD_CHANGED
-    chatRef.on('child_added', function(snapshot){
-      var val = snapshot.val();
-      this.displayConversation(data.key, val.host, val.profileName, val.profileUrl, val.lastMessage);
-    }.bind(this));
-  }.bind(this);
-  // Puts a listener function on the list and displays each item (iterates)
-  userChatRef.limitToLast(12).on('child_added', function(){console.log("HI");});
-  userChatRef.limitToLast(12).on('child_changed', setConversation);
-  */
+
 };
 
 FriendlyChat.prototype.displayConversation = function(key, isHost, profileName, profileUrl, lastMessage) {
@@ -547,9 +552,7 @@ FriendlyChat.prototype.displayConversation = function(key, isHost, profileName, 
     div.querySelector('.meta-name').textContent = profileName;
     div.querySelector('.meta-pic').style.backgroundImage = 'url(' + profileUrl + ')';
   }
-  div.addEventListener('click', function(){
-    this.loadMessages(key);
-  });
+  div.addEventListener('click', this.loadMessages(key));
 };
 
 window.onload = function() {
