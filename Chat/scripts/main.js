@@ -512,11 +512,9 @@ FriendlyChat.prototype.loadConversations = function() {
   this.messagesApp.setAttribute('hidden', 'true');
 
   // Given display name, populate a list of conversation metadata
-  var username;
   if(this.checkSignedInWithMessage()) {
-    username = this.auth.currentUser.displayName || 'User' + this.auth.currentUser.uid;
 
-    var userChatRef = this.database.ref('users/usernames/' + username + '/chats');
+    var userChatRef = this.database.ref('users/usernames/' + this.UN + '/chats');
 
 
     // Dynamic updates
@@ -528,7 +526,7 @@ FriendlyChat.prototype.loadConversations = function() {
       chatRef.once('value').then(
           function(snapshot){
             var val = snapshot.val();
-            this.displayConversation(data.key, val.host === this.auth.currentUser.displayName, val.hostProfileName, val.hostProfileUrl, val.lastMessage);
+            this.displayConversation(data.key, val.host === this.UN, val.hostProfileName, val.hostProfileUrl, val.lastMessage);
           }.bind(this)
       );
     }.bind(this);
@@ -585,9 +583,8 @@ FriendlyChat.prototype.clearMessages = function() {
 
 FriendlyChat.prototype.loadProfile = function() {
   console.log('loadProfile');
-  var username = this.auth.currentUser.displayName || 'User' + this.auth.currentUser.uid;
-  this.editUsernameField.setAttribute('value', this.auth.currentUser.displayName);
-  var metaUserRef = this.database.ref('users/usernames/' + username);
+  this.editUsernameField.setAttribute('value', this.UN);
+  var metaUserRef = this.database.ref('users/usernames/' + this.UN);
   metaUserRef.once('value').then(function(snapshot){
     console.log(snapshot.val().photoURL);
     var location = snapshot.val().location;
@@ -599,12 +596,34 @@ FriendlyChat.prototype.loadProfile = function() {
 };
 
 FriendlyChat.prototype.updateProfileData = function() {
-  var newUsername;
-  if(this.editUsernameField.value === this.auth.currentUser.displayName);
+  var newUsername = this.editUsernameField.value;
+  if(newUsername === this.UN) {
+    console.log('Username unchanged');
+  } else {
+    //this.UN = newUsername;
+    alert('Sorry, you cannot change your username at this time. This will be fixed in the future.');
+  }
+
   var newLocation = this.editLocationField.value;
   var newCrush = this.editCrushField.value;
 
-  var crushRef = firebase.database.ref('crush/' + )
+
+  // Update is shorter than read, compare, and then update
+  var locationRef = this.database.ref('users/usernames/' + this.UN + '/location');
+  locationRef.set({
+    location: newLocation
+  }).then(
+      function() {
+          var crushRef = this.database.ref('crushes/' + this.UN);
+          return crushRef.set({
+            crush: newCrush
+          })
+      }.bind(this)
+  ).catch(function(err){
+    console.log(err);
+  });
+
+
 
 };
 
