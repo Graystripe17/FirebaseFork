@@ -134,23 +134,6 @@
         <div class="page-content">
 
 
-            <!--Chat Selection-->
-            <!--Option 1-->
-            <!--<ul id="chat-list" class="mdl-list">-->
-              <!--<li>-->
-                <!--<span class="mdl-list__item-primary-content">-->
-                  <!--<i class="material-icons mdl-list__item-avatar">person</i>-->
-                  <!--<span>Placeholder Name</span>-->
-                <!--</span>-->
-                <!--<a class="mdl=list__item-secondary-content" href="#">-->
-                  <!--<i class="material-icons">star border</i>-->
-                <!--</a>-->
-              <!--</li>-->
-            <!--</ul>-->
-            <!--Option 2-->
-            <!--<div id="chats">-->
-              <!--<span id="chat-filler"></span>-->
-            <!--</div>-->
             <!--List Conversations-->
             <div id="chats-card-container" class="mdl-cell mdl-cell--12-col mdl-grid">
               <div id="chats-card" class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--6-col-tablet mdl-cel--12-col-desktop">
@@ -243,13 +226,67 @@
       <!--Ship-->
       <section class="mdl-layout__tab-panel" id="ship">
         <div class="page-content">
+          <h2>Relevant</h2>
+          <div id="ship-container">
+            <span>Popular ships</span>
+          </div>
+          <div class="mdl-grid">
+            <div id="first-ship" class="mdl-cell mdl-cell--5-col">
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="u1">
+                <label class="mdl-textfield__label" for="u1">Username</label>
+              </div>
+              <br/>
+              <i>or</i>
+              <br/>
+              Upload Picture/Text
+            </div>
+            <i class="material-icons">star</i>
+            <div id="second-ship" class="mdl-cell mdl-cell--5-col">
+              Duplicate first
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!--Profile-->
+      <section class="mdl-layout__tab-panel" id="profile">
+        <div class="page-content">
+
+
           <!--Find someone you like-->
+          <div class="mdl-card mdl-shadow--2dp">
+
+
+            <!-- Simple Textfield -->
+            <form action="#">
+              <div class="mdl-textfield mdl-js-textfield mdl-card__title-text">
+                <input class="mdl-textfield__input" type="text" id="edit-username">
+                <label class="mdl-textfield__label" for="edit-username">Username</label>
+              </div>
+              <div class="mdl-textfield mdl-js-textfield mdl-card__supporting-text">
+                <input class="mdl-textfield__input" type="text" id="edit-location">
+                <label class="mdl-textfield__label" for="edit-location">From</label>
+              </div>
+              <div class="mdl-textfield mdl-js-textfield mdl-card__supporting-text">
+                <input class="mdl-textfield__input" type="text" id="edit-crush">
+                <label class="mdl-textfield__label" for="edit-crush">Crush</label>
+              </div>
+            </form>
+
+            Upload New Photo
+
+            <div class="mdl-card__actions mdl-card--border">
+              <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+                Update
+              </a>
+            </div>
+
+          </div>
 
 
         </div>
-      </section>
-      <section class="mdl-layout__tab-panel" id="profile">
-        <div class="page-content"><!-- Your content goes here --></div>
       </section>
     </main>
   </div>
