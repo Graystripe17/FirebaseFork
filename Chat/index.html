@@ -122,7 +122,7 @@
         <a href="#chat" id="chat-anchor-label" class="mdl-layout__tab is-active">Chat</a>
         <a href="#find" class="mdl-layout__tab">Find</a>
         <a href="#ship" class="mdl-layout__tab">Ship</a>
-        <a href="#profile" class="mdl-layout__tab">Profile</a>
+        <a href="#profile" id="profile-anchor-label" class="mdl-layout__tab">Profile</a>
       </div>
     </header>
     <div class="mdl-layout__drawer">
@@ -258,10 +258,19 @@
           <!--Find someone you like-->
           <div class="mdl-card mdl-shadow--2dp">
 
+            <div id="profile-pic" class="profile-pic">
 
-            <!-- Simple Textfield -->
+            </div>
+
+            <form id="profile-pic-form" action="#">
+              <input id="profilePicCapture" type="file" accept="image/*,capture=camera">
+              <button id="new-photo" title="Add a photo" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400 mdl-color-text--white">
+                Upload Picture
+              </button>
+            </form>
+
             <form action="#">
-              <div class="mdl-textfield mdl-js-textfield mdl-card__title-text">
+              <div class="mdl-textfield mdl-js-textfield mdl-card__supporting-text">
                 <input class="mdl-textfield__input" type="text" id="edit-username">
                 <label class="mdl-textfield__label" for="edit-username">Username</label>
               </div>
@@ -273,15 +282,12 @@
                 <input class="mdl-textfield__input" type="text" id="edit-crush">
                 <label class="mdl-textfield__label" for="edit-crush">Crush</label>
               </div>
+
+              <button id="update-profile-data" type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+                Update
+              </button>
             </form>
 
-            Upload New Photo
-
-            <div class="mdl-card__actions mdl-card--border">
-              <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-                Update
-              </a>
-            </div>
 
           </div>
 

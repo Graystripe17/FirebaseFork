@@ -37,7 +37,7 @@ SignUp.prototype.submit = function(e) {
             .then(function(user){
                 this.database.ref('users/usernames/' + enteredUserName).set(
                     {
-                        photoURL: user.photoURL || "./images/profile_placeholder.jpg",
+                        photoURL: user.photoURL || "./images/profile_placeholder.png",
                         email: enteredEmail,
                         // Do not pass in password for security reasons
                         location: enteredLocation || "Unspecified"

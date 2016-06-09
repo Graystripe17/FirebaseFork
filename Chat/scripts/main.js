@@ -53,7 +53,13 @@ function FriendlyChat() {
   this.messagesApp = document.getElementById('messages-card-container');
   this.conversationsApp = document.getElementById('chats-card-container');
   this.chatAnchorLabel = document.getElementById('chat-anchor-label');
+  this.profileAnchorLabel = document.getElementById('profile-anchor-label');
   this.signInEmailForm = document.getElementById('sign-in-email-form');
+  this.profilePic = document.getElementById('profile-pic');
+  this.updateProfileDataButton = document.getElementById('update-profile-data');
+  this.editUsernameField = document.getElementById('edit-username');
+  this.editLocationField = document.getElementById('edit-location');
+  this.editCrushField = document.getElementById('edit-crush');
 
 
   // Saves message on form submit.
@@ -63,6 +69,8 @@ function FriendlyChat() {
   this.signInEmailButton.addEventListener('click', this.signInEmail.bind(this));
   this.signUpButton.addEventListener('click', this.signUpEmail.bind(this));
   this.chatAnchorLabel.addEventListener('click', this.loadConversations.bind(this));
+  this.profileAnchorLabel.addEventListener('click', this.loadProfile.bind(this));
+  this.updateProfileDataButton.addEventListener('click', this.updateProfileData.bind(this));
 
   this.anonToggle.addEventListener('change', this.toggleAnon.bind(this));
   this.publicToggle.addEventListener('change', this.togglePublic.bind(this));
@@ -83,7 +91,6 @@ function FriendlyChat() {
     this.mediaCapture.click();
   }.bind(this));
   this.mediaCapture.addEventListener('change', this.saveImageMessage.bind(this));
-
 
 
 
@@ -248,11 +255,13 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
   if (user) { // User is signed in!
     // Get profile pic and user's name from the Firebase user object.
     var profilePicUrl = user.photoURL;
-    var userName = user.displayName || "User" + user.uid;
+
+    // UN is a global read/write username string that persists throughout the session.
+    this.UN = user.displayName || "User" + user.uid;
 
     // Set the user's profile pic and name.
     this.userPic.style.backgroundImage = 'url(' + profilePicUrl + ')';
-    this.userName.textContent = userName;
+    this.userName.textContent = this.UN;
 
     // Show user's profile and sign-out button.
     this.userName.removeAttribute('hidden');
@@ -526,21 +535,6 @@ FriendlyChat.prototype.loadConversations = function() {
     // Puts a listener function on the list and displays each item (iterates)
     userChatRef.limitToLast(12).on('child_added', setConversation);
     userChatRef.limitToLast(12).on('child_changed', setConversation);
-
-
-    // Serial updates
-    //userChatRef.once('value').then(function (snapshot) {
-    //  var list_of_chats = snapshot.val();
-    //  console.log(list_of_chats);
-    //  for (var i = 0; i < list_of_chats.childElementCount; i++) {
-    //    console.log(snapshot[i]);
-    //    var targetChatRef = this.database.ref('chats/' + snapshot[i]);
-    //    targetChatRef.once('value').then(function (info) {
-    //      var chatObject = info.val();
-    //      this.displayConversation(info.key, chatObject.host, chatObject.hostProfileName, chatObject.hostProfileUrl, chatObject.lastMessage);
-    //    }.bind(this));
-    //  }
-    //}.bind(this));
   }
 
 };
@@ -587,6 +581,31 @@ FriendlyChat.prototype.displayConversation = function(key, isHost, profileName, 
 
 FriendlyChat.prototype.clearMessages = function() {
   $('.message-container').remove();
+};
+
+FriendlyChat.prototype.loadProfile = function() {
+  console.log('loadProfile');
+  var username = this.auth.currentUser.displayName || 'User' + this.auth.currentUser.uid;
+  this.editUsernameField.setAttribute('value', this.auth.currentUser.displayName);
+  var metaUserRef = this.database.ref('users/usernames/' + username);
+  metaUserRef.once('value').then(function(snapshot){
+    console.log(snapshot.val().photoURL);
+    var location = snapshot.val().location;
+    this.editLocationField.setAttribute('value', location);
+    var profileUrl = snapshot.val().photoURL;
+    this.profilePic.style.backgroundImage = 'url(' + profileUrl + ')';
+
+  }.bind(this));
+};
+
+FriendlyChat.prototype.updateProfileData = function() {
+  var newUsername;
+  if(this.editUsernameField.value === this.auth.currentUser.displayName);
+  var newLocation = this.editLocationField.value;
+  var newCrush = this.editCrushField.value;
+
+  var crushRef = firebase.database.ref('crush/' + )
+
 };
 
 window.onload = function() {
