@@ -723,6 +723,8 @@ FriendlyChat.prototype.changeProfilePicture = function(event) {
               photoURL: this.storage.ref(filePath).toString()
             }
         ).catch(function(err){console.log(err);});
+        // Refresh the stream
+        this.loadProfile();
       }.bind(this));
 
   }
