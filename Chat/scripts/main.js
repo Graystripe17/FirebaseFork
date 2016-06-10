@@ -57,6 +57,9 @@ function FriendlyChat() {
   this.signInEmailForm = document.getElementById('sign-in-email-form');
   this.profilePic = document.getElementById('profile-pic');
   this.updateProfileDataButton = document.getElementById('update-profile-data');
+  this.updateProfilePicForm = document.getElementById('profile-pic-form');
+  this.updateProfilePicInput = document.getElementById('profile-pic-input');
+  this.updateProfilePicButton = document.getElementById('profile-pic-button');
   this.editUsernameField = document.getElementById('edit-username');
   this.editLocationField = document.getElementById('edit-location');
   this.editCrushField = document.getElementById('edit-crush');
@@ -92,6 +95,11 @@ function FriendlyChat() {
   }.bind(this));
   this.mediaCapture.addEventListener('change', this.saveImageMessage.bind(this));
 
+  this.updateProfilePicButton.addEventListener('click', function() {
+    this.updateProfilePicInput.click();
+  }.bind(this));
+  this.updateProfilePicInput.addEventListener('change', this.changeProfilePicture.bind(this));
+
 
 
   // this.loadMessages();
@@ -124,6 +132,7 @@ FriendlyChat.prototype.loadMessages = function(chatID) {
     console.log('setMessage');
     var val = data.val();
     this.displayMessage(data.key, val.name, val.text, val.photoUrl, val.imageUrl);
+    console.log(val.imageUrl);
   }.bind(this);
   this.messagesRef.limitToLast(12).on('child_added', setMessage);
   this.messagesRef.limitToLast(12).on('child_changed', setMessage);
@@ -162,12 +171,14 @@ FriendlyChat.prototype.setImageUrl = function(imageUri, imgElement) {
     imgElement.src = FriendlyChat.LOADING_IMAGE_URL;
     this.storage.refFromURL(imageUri).getMetadata().then(function(metadata){
       imgElement.src = metadata.downloadURLs[0];
+      console.log(imgElement.src);
     });
   } else {
     imgElement.src = imageUri;
   }
 
 };
+
 
 // Saves a new message containing an image URI in Firebase.
 // This first saves the image in Firebase storage.
@@ -180,7 +191,7 @@ FriendlyChat.prototype.saveImageMessage = function(event) {
   // Check if the file is an image.
   if (!file.type.match('image.*')) {
     var data = {
-      message: 'Sorry! You can only share images',
+      message: 'Sorry! You can currently only share images',
       timeout: 2000
     };
     this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
@@ -200,13 +211,15 @@ FriendlyChat.prototype.saveImageMessage = function(event) {
       var uploadTask = this.storage.ref(currentUser.uid + '/' + Date.now() +'/' + file.name)
           .put(file, {'contentType': file.type});
       // Check for upload completion
+      // Second parameter can be a function that monitors status of upload
       uploadTask.on('state_changed', null, function(error){
         console.error('There was an error uploading a file to Firebase Storage:', error);
+        alert('Sorry! There was an uploading error, please report this so we can fix it');
       }, function() {
         // Update the placeholder
         var filePath = uploadTask.snapshot.metadata.fullPath;
+        console.log(this.storage.ref(filePath).toString());
         data.update({imageUrl: this.storage.ref(filePath).toString()});
-
       }.bind(this));
 
     }.bind(this));
@@ -630,8 +643,7 @@ FriendlyChat.prototype.loadProfile = function() {
     var location = snapshot.val().location;
     this.editLocationField.setAttribute('value', location);
     var profileUrl = snapshot.val().photoURL;
-    this.profilePic.style.backgroundImage = 'url(' + profileUrl + ')';
-
+    this.setImageUrl(profileUrl, this.profilePic); // Converts from gs:// to downloadable
   }.bind(this));
 };
 
@@ -676,7 +688,44 @@ FriendlyChat.prototype.updateProfileData = function() {
   });
 
 
+};
 
+FriendlyChat.prototype.changeProfilePicture = function(event) {
+  console.log('changeProfilePicture');
+  var file = event.target.files[0];
+
+  // Clear the selection in the file picker
+  this.updateProfilePicForm.reset();
+
+  // Make sure the file is an image.
+  if(!file.type.match('image.*')) {
+    var data = {
+      message: 'Sorry! You can currently only use images',
+      timeout: 2000
+    };
+    // Snackbar
+    return;
+  }
+
+  if(this.checkSignedInWithMessage()) {
+
+      var uploadTask = this.storage.ref(this.auth.currentUser.uid + '/' + Date.now() + '/' + file.name)
+          .put(file, {'contentType': file.type});
+      uploadTask.on('state_changed', null, function(err) {
+        console.error('There was an error uploading the file to Storage:', error);
+      }, function() {
+        var filePath = uploadTask.snapshot.metadata.fullPath;
+        var userRef = this.database.ref('users/usernames/' + this.UN);
+        console.log(filePath);
+        console.log(this.storage.ref(filePath).toString);
+        userRef.update(
+            {
+              photoURL: this.storage.ref(filePath).toString()
+            }
+        ).catch(function(err){console.log(err);});
+      }.bind(this));
+
+  }
 
 };
 
