@@ -44,13 +44,7 @@ SignUp.prototype.submit = function(e) {
 
     if(enteredEmail && enteredPassword && enteredUserName){
 
-        var updateUidUsername = function() {
-            return this.database.ref('uids/' + enteredUserName).set({
-                username: enteredUserName
-            });
-        }.bind(this);
-
-        var setUserDetails = function(user){
+        var setUserDetails_and_updateUidUsername = function(user){
             return this.database.ref('users/usernames/' + enteredUserName).set(
                 {
                     photoURL: user.photoURL || "./images/profile_placeholder.png",
@@ -58,23 +52,27 @@ SignUp.prototype.submit = function(e) {
                     // Do not pass in password for security reasons
                     location: enteredLocation || "Unspecified"
                 }
-            )
+            ).then(function(){
+                return this.database.ref('uids/' + user.uid).set({
+                    username: enteredUserName
+                });
+            }.bind(this));
         }.bind(this);
+
 
         var redirectHome = function() {
             window.location = "./";
         };
 
         this.auth.createUserWithEmailAndPassword(enteredEmail, enteredPassword)
-            .then(setUserDetails)
-            .then(updateUidUsername)
+            .then(setUserDetails_and_updateUidUsername)
             .then(redirectHome)
             .catch(function(error) {
                 var errorCode = error.code;
                 var errorMessage = error.message;
                 console.log(errorCode, errorMessage);
                 alert('Sorry, this creation error occurred\n' + errorCode + "\n" + errorMessage + "\n" +
-                        "Think this is our fault?\n" +
+                        "Is this our fault?\n" +
                         'If you could kindly contact us with your web browser and any details, we will do our best to fix it. Thanks');
             });
     }
