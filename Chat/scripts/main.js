@@ -224,9 +224,32 @@ FriendlyChat.prototype.signIn = function(googleUser) {
     // Google Access token
     var token = result.credential.accessToken;
     var user = result.user;
-    console.log(user);
-    var displayName = user.displayName || 'User' + user.uid;
-    this.googleRef = this.database.ref('users/usernames/'+displayName);
+
+    // Query users database to find if username already exists
+    // We know email doesn't change no matter what
+
+    var emailUsernameRef = this.database.ref('emails/' + user.email);
+    emailUsernameRef.once('value', function(snapshot){
+      if(snapshot.exists()){
+        // This user has been here before
+        // READ value from here to get username
+        this.UN = snapshot.val().username;
+      } else {
+        // This user is new
+        // Create value and write
+        this.UN = user.displayName || 'User' + user.uid;
+        emailUsernameRef.set({
+          username: this.UN
+        });
+      }
+    }.bind(this)).catch(function(err){
+      console.log(err);
+      // Default value in case there was an error
+      this.UN = user.displayName || 'User' + user.uid;
+    }.bind(this));
+
+
+    this.googleRef = this.database.ref('users/usernames/'+this.UN);
     this.googleRef.set(
         {
           photoURL: user.photoURL,
@@ -257,7 +280,9 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     var profilePicUrl = user.photoURL;
 
     // UN is a global read/write username string that persists throughout the session.
-    this.UN = user.displayName || "User" + user.uid;
+    if(this.UN === null) {
+      this.UN = user.displayName || "User" + user.uid;
+    }
 
     // Set the user's profile pic and name.
     this.userPic.style.backgroundImage = 'url(' + profilePicUrl + ')';
@@ -609,8 +634,8 @@ FriendlyChat.prototype.updateProfileData = function() {
 
 
   // Update is shorter than read, compare, and then update
-  var locationRef = this.database.ref('users/usernames/' + this.UN + '/location');
-  locationRef.set({
+  var locationRef = this.database.ref('users/usernames/' + this.UN);
+  locationRef.update({
     location: newLocation
   }).then(
       function() {
