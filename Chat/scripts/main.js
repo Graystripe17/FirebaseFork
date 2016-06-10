@@ -283,7 +283,7 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     var profilePicUrl = user.photoURL || '/images/profile_placeholder.png';
 
     // UN is a global read/write username string that persists throughout the session.
-    // SETTING THE VALUE OF this.UN WITH EMAIL
+    // SETTING THE VALUE OF this.UN WITH UID
     if(this.UN == undefined) {
       console.log('this.UN was null. Fetch the real one with UID from the database');
       this.database.ref('uids/' + user.uid).once('value', function(snapshot){
@@ -637,19 +637,27 @@ FriendlyChat.prototype.loadProfile = function() {
 
 FriendlyChat.prototype.updateProfileData = function() {
   var newUsername = this.editUsernameField.value;
+  var newLocation = this.editLocationField.value;
+  var newCrush = this.editCrushField.value;
+  newUsername = newUsername.replace(/[|&;$%@"<>()+,]/g, "");
+  newLocation = newLocation.replace(/[|&;$%@"<>()+,]/g, "");
+  newCrush = newCrush.replace(/[|&;$%@"<>()+,]/g, "");
+
+
   if(newUsername === this.UN) {
     console.log('Username unchanged');
   } else {
     // Update this.UN reference
-    this.UN = newUsername;
     this.database.ref('uids/' + this.auth.currentUser.uid).set({
-      username: this.UN
+      username: newUsername
     });
+    var updates = {};
+    updates[this.UN] = newUsername;
+    this.database.ref('users/usernames').update(updates);
+    this.UN = newUsername;
     console.log('Update queued. Changes to Username may take time to reflect');
   }
 
-  var newLocation = this.editLocationField.value;
-  var newCrush = this.editCrushField.value;
 
 
   // Update is shorter than read, compare, and then update
