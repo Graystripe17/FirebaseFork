@@ -95,9 +95,6 @@ function FriendlyChat() {
 
 
   // this.loadMessages();
-
-  // Refresh
-  this.onAuthStateChanged();
 }
 
 // Sets up shortcuts to Firebase features and initiate firebase auth.
@@ -224,21 +221,26 @@ FriendlyChat.prototype.signIn = function(googleUser) {
     // Google Access token
     var token = result.credential.accessToken;
     var user = result.user;
+    console.log(user);
 
     // Query users database to find if username already exists
     // We know email doesn't change no matter what
-
-    var emailUsernameRef = this.database.ref('emails/' + user.email);
-    emailUsernameRef.once('value', function(snapshot){
+    // SETTING THE VALUE OF this.UN WITH GOOGLE
+    var uidUsernameRef = this.database.ref('uids/' + user.uid);
+    uidUsernameRef.once('value', function(snapshot){
       if(snapshot.exists()){
         // This user has been here before
         // READ value from here to get username
         this.UN = snapshot.val().username;
+        console.log('Exist in uids book');
+        console.log(this.UN);
       } else {
+        console.log('Not in uids book');
         // This user is new
         // Create value and write
+        // TODO: check if you can access this yet
         this.UN = user.displayName || 'User' + user.uid;
-        emailUsernameRef.set({
+        uidUsernameRef.set({
           username: this.UN
         });
       }
@@ -276,12 +278,26 @@ FriendlyChat.prototype.signOut = function() {
 // Triggers when the auth state change for instance when the user signs-in or signs-out.
 FriendlyChat.prototype.onAuthStateChanged = function(user) {
   if (user) { // User is signed in!
+    console.log("User is considered signed in");
     // Get profile pic and user's name from the Firebase user object.
-    var profilePicUrl = user.photoURL;
+    var profilePicUrl = user.photoURL || '/images/profile_placeholder.png';
 
     // UN is a global read/write username string that persists throughout the session.
-    if(this.UN === null) {
-      this.UN = user.displayName || "User" + user.uid;
+    // SETTING THE VALUE OF this.UN WITH EMAIL
+    if(this.UN == undefined) {
+      console.log('this.UN was null. Fetch the real one with UID from the database');
+      this.database.ref('uids/' + user.uid).once('value', function(snapshot){
+        this.UN = snapshot.val().username;
+        console.log('Grabbed from snapshot.username');
+        if(this.UN == undefined) {
+          console.log('Impossible error');
+        }
+      }.bind(this)).catch(function(err){
+        console.log('Error obtaining userID from database', err);
+        this.UN = user.displayName || "User" + user.uid;
+      }.bind(this));
+    } else {
+      console.log(this.UN);
     }
 
     // Set the user's profile pic and name.
@@ -303,10 +319,12 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     this.loadConversations();
 
   } else { // User is signed out!
+    console.log("User is considered signed out");
     // Hide user's profile and sign-out button.
     this.userName.setAttribute('hidden', 'true');
     this.userPic.setAttribute('hidden', 'true');
     this.signOutButton.setAttribute('hidden', 'true');
+
 
     // Show sign-in buttons.
     this.signInGoogleButton.removeAttribute('hidden');
@@ -498,15 +516,12 @@ FriendlyChat.prototype.queryUsers = function(e) {
 };
 
 FriendlyChat.prototype.startNewChat = function(host_display_name, host_profile_url) {
-  var currentUser = this.auth.currentUser;
-  // Explicit variable grabs a read only value
-  var current_user_display_name = this.auth.currentUser.displayName || ('User' + this.auth.currentUser.uid);
   var chatRef = this.database.ref('chats');
   var usernamesRef = this.database.ref('users/usernames');
 
 
   var chat_meta_data = {
-    anon: current_user_display_name,
+    anon: this.UN,
     host: host_display_name,
     time: Date.now(),
     lastMessage: "",
@@ -625,8 +640,12 @@ FriendlyChat.prototype.updateProfileData = function() {
   if(newUsername === this.UN) {
     console.log('Username unchanged');
   } else {
-    //this.UN = newUsername;
-    alert('Sorry, you cannot change your username at this time. This will be fixed in the future.');
+    // Update this.UN reference
+    this.UN = newUsername;
+    this.database.ref('uids/' + this.auth.currentUser.uid).set({
+      username: this.UN
+    });
+    console.log('Update queued. Changes to Username may take time to reflect');
   }
 
   var newLocation = this.editLocationField.value;
@@ -647,6 +666,7 @@ FriendlyChat.prototype.updateProfileData = function() {
   ).catch(function(err){
     console.log(err);
   });
+
 
 
 

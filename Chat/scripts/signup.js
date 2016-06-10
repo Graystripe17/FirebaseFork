@@ -40,37 +40,41 @@ SignUp.prototype.submit = function(e) {
         }
     }.bind(this));
 
-    var updateEmailsUsername = function() {
-        return this.database.ref('emails/' + enteredEmail).set({
-            username: enteredUserName
-        });
-    }.bind(this);
 
-    var setUserDetails = function(user){
-        return this.database.ref('users/usernames/' + enteredUserName).set(
-            {
-                photoURL: user.photoURL || "./images/profile_placeholder.png",
-                email: enteredEmail,
-                // Do not pass in password for security reasons
-                location: enteredLocation || "Unspecified"
-            }
-        )
-    }.bind(this);
-
-    var redirectHome = function() {
-        window.location = "./";
-    };
 
     if(enteredEmail && enteredPassword && enteredUserName){
+
+        var updateUidUsername = function() {
+            return this.database.ref('uids/' + enteredUserName).set({
+                username: enteredUserName
+            });
+        }.bind(this);
+
+        var setUserDetails = function(user){
+            return this.database.ref('users/usernames/' + enteredUserName).set(
+                {
+                    photoURL: user.photoURL || "./images/profile_placeholder.png",
+                    email: enteredEmail,
+                    // Do not pass in password for security reasons
+                    location: enteredLocation || "Unspecified"
+                }
+            )
+        }.bind(this);
+
+        var redirectHome = function() {
+            window.location = "./";
+        };
+
         this.auth.createUserWithEmailAndPassword(enteredEmail, enteredPassword)
             .then(setUserDetails)
-            .then(updateEmailsUsername)
+            .then(updateUidUsername)
             .then(redirectHome)
             .catch(function(error) {
                 var errorCode = error.code;
                 var errorMessage = error.message;
                 console.log(errorCode, errorMessage);
                 alert('Sorry, this creation error occurred\n' + errorCode + "\n" + errorMessage + "\n" +
+                        "Think this is our fault?\n" +
                         'If you could kindly contact us with your web browser and any details, we will do our best to fix it. Thanks');
             });
     }
