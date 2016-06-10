@@ -285,7 +285,7 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     // UN is a global read/write username string that persists throughout the session.
     // SETTING THE VALUE OF this.UN WITH UID
     if(this.UN == undefined) {
-      console.log('this.UN was null. Fetch the real one with UID from the database');
+      console.log('this.UN was undefined. Fetch the real one with UID from the database');
       this.database.ref('uids/' + user.uid).once('value', function(snapshot){
         this.UN = snapshot.val().username;
         console.log('Grabbed from snapshot.username');
@@ -534,11 +534,11 @@ FriendlyChat.prototype.startNewChat = function(host_display_name, host_profile_u
   // in the chats node
   var pushKey = chatRef.push(chat_meta_data).key;
 
-  console.log('Pushing to users ' + host_display_name + ' and ' + current_user_display_name);
+  console.log('Pushing to users ' + host_display_name + ' and ' + this.UN);
   var updates = {};
   // Pack in extra meta data of profile Url for quick population
   updates[host_display_name + '/chats/' + pushKey + '/host'] = true;
-  updates[current_user_display_name + '/chats/' + pushKey + '/host'] = false;
+  updates[this.UN + '/chats/' + pushKey + '/host'] = false;
   this.loadMessages(pushKey);
   return usernamesRef.update(updates).catch(function(err){
     console.log(err);
@@ -667,7 +667,7 @@ FriendlyChat.prototype.updateProfileData = function() {
   }).then(
       function() {
           var crushRef = this.database.ref('crushes/' + this.UN);
-          return crushRef.set({
+          return crushRef.update({
             crush: newCrush
           })
       }.bind(this)
