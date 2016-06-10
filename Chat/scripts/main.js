@@ -256,6 +256,23 @@ FriendlyChat.prototype.signIn = function(googleUser) {
         uidUsernameRef.set({
           username: this.UN
         });
+
+        this.googleRef = this.database.ref('users/usernames/'+this.UN);
+        this.googleRef.set(
+            {
+              photoURL: user.photoURL,
+              email: user.email,
+              location: "Unspecified"
+            }
+        ).then(function(snapshot){
+          console.log('Success');
+        }.bind(this)).catch(function(err){
+          console.log('Sorry, this server error occurred\n' + err);
+          console.log('If a permission denied error occurred, this is because Firebase ' +
+              'is not allowed to write into an existing JSON path. For OAuth with ' +
+              'Google, this is normal. This error occurs when not using OAuth for ' +
+              'first time.');
+        })
       }
     }.bind(this)).catch(function(err){
       console.log(err);
@@ -264,22 +281,6 @@ FriendlyChat.prototype.signIn = function(googleUser) {
     }.bind(this));
 
 
-    this.googleRef = this.database.ref('users/usernames/'+this.UN);
-    this.googleRef.set(
-        {
-          photoURL: user.photoURL,
-          email: user.email,
-          location: "Unspecified"
-        }
-    ).then(function(snapshot){
-      console.log('Success');
-    }.bind(this)).catch(function(err){
-      console.log('Sorry, this server error occurred\n' + err);
-      console.log('If a permission denied error occurred, this is because Firebase ' +
-                  'is not allowed to write into an existing JSON path. For OAuth with ' +
-                  'Google, this is normal. This error occurs when not using OAuth for ' +
-                  'first time.');
-    })
   }.bind(this));
 };
 
