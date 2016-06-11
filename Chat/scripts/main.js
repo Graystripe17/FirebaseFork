@@ -36,11 +36,24 @@ function FriendlyChat() {
   this.signOutButton = document.getElementById('sign-out');
   this.signInSnackbar = document.getElementById('must-signin-snackbar');
 
+
+  this.chatAnchorLabel = document.getElementById('chat-anchor-label');
+  this.profileAnchorLabel = document.getElementById('profile-anchor-label');
+
+  // 0 Sign Up Email
   this.anonToggle = document.getElementById('switch-1');
   this.publicToggle = document.getElementById('switch-2');
   this.signInEmailButton = document.getElementById('sign-in-email');
   this.emailInputField = document.getElementById('email-input');
   this.passwordInputField = document.getElementById('password-input');
+  this.signInEmailForm = document.getElementById('sign-in-email-form');
+
+  // 1 Chat
+  this.conversationList = document.getElementById('chats');
+  this.messagesApp = document.getElementById('messages-card-container');
+  this.conversationsApp = document.getElementById('chats-card-container');
+
+  // 2 Find
   this.findForm = document.getElementById('find-form');
   this.findButton = document.getElementById('user-search');
   this.findInput = document.getElementById('query');
@@ -49,12 +62,17 @@ function FriendlyChat() {
   this.displayNameText = document.getElementById('display-name-text');
   this.locationText = document.getElementById('location-text');
   this.anonChatButton = document.getElementById('anon-chat-button');
-  this.conversationList = document.getElementById('chats');
-  this.messagesApp = document.getElementById('messages-card-container');
-  this.conversationsApp = document.getElementById('chats-card-container');
-  this.chatAnchorLabel = document.getElementById('chat-anchor-label');
-  this.profileAnchorLabel = document.getElementById('profile-anchor-label');
-  this.signInEmailForm = document.getElementById('sign-in-email-form');
+
+  // 3 Ship
+  this.username1 = document.getElementById('u1');
+  this.img1 = document.getElementById('img1');
+  this.text1 = document.getElementById('text1');
+  this.picForm1 = document.getElementById('pic1-form');
+  this.picInput1 = document.getElementById('pic1-input');
+  this.picButton1 = document.getElementById('pic1-button');
+
+
+  // 4 Profile
   this.profilePic = document.getElementById('profile-pic');
   this.updateProfileDataButton = document.getElementById('update-profile-data');
   this.updateProfilePicForm = document.getElementById('profile-pic-form');
@@ -100,6 +118,12 @@ function FriendlyChat() {
   }.bind(this));
   this.updateProfilePicInput.addEventListener('change', this.changeProfilePicture.bind(this));
 
+  this.picButton1.addEventListener('click', function(){
+    this.picInput1.click();
+  }.bind(this));
+  this.picInput1.addEventListener('change', this.uploadFirstPicture.bind(this));
+
+
 
 
   // this.loadMessages();
@@ -144,14 +168,15 @@ FriendlyChat.prototype.saveMessage = function(e) {
   e.preventDefault();
   // Check that the user entered a message and is signed in.
   if (this.messageInput.value && this.checkSignedInWithMessage()) {
-
+    console.log("New message, check PIC");
+    console.log(this.PIC);
     var currentUser = this.auth.currentUser;
     // Updates Firebase database
     this.messagesRef.push(
         {
-          name: currentUser.displayName || 'User' + currentUser.uid,
+          name: this.UN || currentUser.displayName || 'User' + currentUser.uid,
           text: this.messageInput.value,
-          photoUrl: currentUser.photoURL || '/images/profile_placeholder.png'
+          photoUrl: this.PIC || currentUser.photoURL || '/images/profile_placeholder.png'
         }
     ).then(function() {
       // Clear the text
@@ -245,6 +270,7 @@ FriendlyChat.prototype.signIn = function(googleUser) {
         // This user has been here before
         // READ value from here to get username
         this.UN = snapshot.val().username;
+        this.PIC = snapshot.val().username.photoURL;
         console.log('Exist in uids book');
         console.log(this.UN);
       } else {
@@ -253,6 +279,7 @@ FriendlyChat.prototype.signIn = function(googleUser) {
         // Create value and write
         // TODO: check if you can access this yet
         this.UN = user.displayName || 'User' + user.uid;
+        this.PIC = user.photoURL;
         uidUsernameRef.set({
           username: this.UN
         });
@@ -476,11 +503,29 @@ FriendlyChat.prototype.signInEmail = function() {
   var email = this.emailInputField.value;
   var password = this.passwordInputField.value;
   console.log(email);
-  this.auth.signInWithEmailAndPassword(email, password).catch(function(error) {
+  this.auth.signInWithEmailAndPassword(email, password)
+      .then(function(user){
+        // Grab uid
+        this.UID = user.uid;
+        this.database.ref('uids/'+ this.UID).once('value', function(snapshot){
+          // Grab username
+          this.UN = snapshot.val().username;
+        }.bind(this)).then(
+            // Grab userPIC
+            function(){
+              this.database.ref('users/usernames/' + this.UN).once('value', function(userData){
+                this.PIC = userData.val().photoURL;
+              }.bind(this));
+            }.bind(this)
+        );
+
+      }.bind(this))
+      .catch(function(error) {
     var errorCode = error.code;
     var errorMessage = error.message;
     console.log(errorCode, errorMessage);
   });
+
 };
 
 FriendlyChat.prototype.signUpEmail = function() {
@@ -643,6 +688,7 @@ FriendlyChat.prototype.loadProfile = function() {
     console.log(snapshot.val().photoURL);
     var location = snapshot.val().location;
     this.editLocationField.setAttribute('value', location);
+    // TODO: Refactor using this.PIC
     var profileUrl = snapshot.val().photoURL;
     this.setImageUrl(profileUrl, this.profilePic); // Converts from gs:// to downloadable
   }.bind(this));
@@ -717,11 +763,10 @@ FriendlyChat.prototype.changeProfilePicture = function(event) {
       }, function() {
         var filePath = uploadTask.snapshot.metadata.fullPath;
         var userRef = this.database.ref('users/usernames/' + this.UN);
-        console.log(filePath);
-        console.log(this.storage.ref(filePath).toString);
+        this.PIC = this.storage.ref(filePath).toString();
         userRef.update(
             {
-              photoURL: this.storage.ref(filePath).toString()
+              photoURL: this.PIC
             }
         ).catch(function(err){console.log(err);});
         // Refresh the stream
@@ -730,6 +775,32 @@ FriendlyChat.prototype.changeProfilePicture = function(event) {
 
   }
 
+};
+
+FriendlyChat.prototype.uploadFirstPicture = function(event) {
+  console.log('uploadFirstPicture');
+  var file = event.target.files[0];
+
+  // Reset file picker
+  this.updateProfilePicForm.reset();
+
+  if(!file.type.match('image.*')) {
+    var data = {
+      message: 'Sorry! You can currently only use images',
+      timeout: 2000
+    };
+    // Snackbar
+    return;
+  }
+
+  // this.auth.currentUser.uid may be undefined, but that is an acceptable path
+  var uploadTask = this.storage.ref(this.auth.currentUser.uid + '/' + Date.now() + '/' + file.name)
+      .put(file, {'contentType': file.type});
+  uploadTask.on('state_changed', null, function(err){
+    console.error('There was an error uploading the file to Storage:', error);
+  }, function(){
+    // JUNE 12 WINSTON FINISH THIS LOGIC
+  }.bind(this));
 };
 
 window.onload = function() {

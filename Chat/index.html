@@ -163,7 +163,7 @@
                     </button>
                   </form>
                   <form id="image-form" action="#">
-                    <input id="mediaCapture" type="file" accept="image/*,capture=camera">
+                    <input id="mediaCapture" type="file" accept="image/*,capture=camera" class="hidden-file-input">
                     <button id="submitImage" title="Add an image" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400 mdl-color-text--white">
                       <i class="material-icons">image</i>
                     </button>
@@ -231,7 +231,7 @@
             <span>Popular ships</span>
           </div>
           <div class="mdl-grid">
-            <div id="first-ship" class="mdl-cell mdl-cell--5-col">
+            <div id="first-ship" class="mdl-cell mdl-card mdl-shadow--2dp mdl-cell--5-col">
               <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                 <input class="mdl-textfield__input" type="text" id="u1">
                 <label class="mdl-textfield__label" for="u1">Username</label>
@@ -239,13 +239,31 @@
               <br/>
               <i>or</i>
               <br/>
-              Upload Picture/Text
+
+              <img src="http://play.freeciv.org/blog/wp-content/themes/flymag/images/placeholder.png" class="profile-dimension" id="img1"/>
+
+              <!-- Name 1 -->
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="text1">
+                <label class="mdl-textfield__label" for="text1">Name</label>
+              </div>
+              <!-- Picture 1 -->
+              <form id="pic1-form" action="#">
+                <input id="pic1-input" type="file" accept="image/*,capture=camera" class="hidden-file-input">
+                <button id="pic1-button" title="Add a photo" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400 mdl-color-text--white">
+                  Choose Pic
+                </button>
+              </form>
+
             </div>
             <i class="material-icons">star</i>
             <div id="second-ship" class="mdl-cell mdl-cell--5-col">
               Duplicate first
             </div>
           </div>
+          <button id="submit-ship" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text-white">
+            Submit
+          </button>
         </div>
       </section>
 
@@ -258,14 +276,12 @@
           <!--Find someone you like-->
           <div class="mdl-card mdl-shadow--2dp">
 
-            <img id="profile-pic" class="profile-pic" src="https://www.google.com/images/spin-32.gif">
-
-            </img>
+            <img id="profile-pic" class="profile-pic" src="https://www.google.com/images/spin-32.gif"/>
 
             <form id="profile-pic-form" action="#">
-              <input id="profile-pic-input" type="file" accept="image/*,capture=camera">
+              <input id="profile-pic-input" type="file" accept="image/*,capture=camera" class="hidden-file-input">
               <button id="profile-pic-button" title="Add a photo" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400 mdl-color-text--white">
-                Upload Picture
+                Upload Pic
               </button>
             </form>
 
