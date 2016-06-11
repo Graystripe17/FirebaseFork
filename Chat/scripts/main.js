@@ -793,13 +793,18 @@ FriendlyChat.prototype.uploadFirstPicture = function(event) {
     return;
   }
 
+
   // this.auth.currentUser.uid may be undefined, but that is an acceptable path
   var uploadTask = this.storage.ref(this.auth.currentUser.uid + '/' + Date.now() + '/' + file.name)
       .put(file, {'contentType': file.type});
   uploadTask.on('state_changed', null, function(err){
     console.error('There was an error uploading the file to Storage:', error);
   }, function(){
-    // JUNE 12 WINSTON FINISH THIS LOGIC
+    var filePath = uploadTask.snapshot.metadata.fullPath;
+    console.log('Uploading to ', filePath);
+    this.picURL1 = this.storage.ref(filePath).toString();
+    // Set the image background to picURL1
+    this.setImageUrl(this.picURL1, this.img1);
   }.bind(this));
 };
 
