@@ -894,6 +894,7 @@ FriendlyChat.prototype.submitShip = function() {
 
   targetElem.addEventListener('finished1', function(event)
   {
+    console.log('finished1');
     // Completed 1, process 2
     if(this.username2.value) {
       this.database.ref('users/usernames/' + this.username2.value).once('value', function(snapshot){
@@ -924,8 +925,9 @@ FriendlyChat.prototype.submitShip = function() {
 
   // After receiving finished2, we should update the database
   targetElem.addEventListener('finished2', function(event){
+    console.log('finished2');
     var shipRef = this.database.ref('ships');
-    shipRef.set({
+    shipRef.push({
       person1: {
         username: first_un,
         pic: first_pic
