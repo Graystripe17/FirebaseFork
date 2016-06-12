@@ -139,7 +139,7 @@ function FriendlyChat() {
   }.bind(this));
   this.picInput2.addEventListener('change', this.uploadSecondPicture.bind(this));
 
-  this.submitShipButton.addEventListener('click', this.submitShip.bind(this));
+  this.submitShipButton.addEventListener('click', this.submitShipCheck1.bind(this));
 
 
   // this.loadMessages();
@@ -856,11 +856,9 @@ FriendlyChat.prototype.uploadSecondPicture = function(event) {
   }.bind(this));
 };
 
-FriendlyChat.prototype.submitShip = function() {
+FriendlyChat.prototype.submitShipCheck1 = function() {
+  console.log('submitShipCheck1');
   var first_un, first_pic;
-  var second_un, second_pic;
-
-  var targetElem = this.submitShipButton;
 
   if(this.username1.value) {
     this.database.ref('users/usernames/' + this.username1.value).once('value', function(snapshot){
@@ -869,79 +867,74 @@ FriendlyChat.prototype.submitShip = function() {
         console.log('User exists', this.username1.value);
         first_un = this.username1.value;
         first_pic = snapshot.val().photoURL;
+        // Success for the first set
+        // Upon Completion, call function 2
+        this.submitShipCheck2(first_un, first_pic);
       } else {
         console.log('User doesnt exist');
         // Snackbar incomplete
         return;
       }
-    }.bind(this)).then(
-      function() {
-        // Success for the first set
-        var event = new Event('finished1');
-        targetElem.dispatchEvent(event);
-      }
-    )
+    }.bind(this))
   } else if (this.text1.value && this.picURI1) {
     first_un = this.text1.value;
     first_pic = this.img1.value;
     // Success for the first set
-    var event = new Event('finished1');
-    targetElem.dispatchEvent(event);
+    // Upon Completion, call function 2
+    this.submitShipCheck2(first_un, first_pic);
   } else {
     // Snackbar incomplete
     return;
   }
 
-  targetElem.addEventListener('finished1', function(event)
-  {
-    console.log('finished1');
-    // Completed 1, process 2
-    if(this.username2.value) {
-      this.database.ref('users/usernames/' + this.username2.value).once('value', function(snapshot){
-        if(snapshot.exists()) {
-          second_un = this.username2.value;
-          second_pic = snapshot.val().photoURL;
-          // Success for the second set
-          var event = new Event('finished2');
-          targetElem.dispatchEvent(event);
-        } else {
-          // Snackbar incomplete
-          return;
-        }
-      }.bind(this));
-    } else if (this.text2.value && this.picURI2) {
-      second_un = this.text2.value;
-      second_pic = this.img2.value;
-      // Success for the second set
-      var event = new Event('finished2');
-      targetElem.dispatchEvent(event);
-    } else {
-      // Snackbar incomplete
-      return;
-    }
-  }.bind(this), false);
+};
 
+FriendlyChat.prototype.submitShipCheck2 = function(first_un, first_pic) {
+  var second_un, second_pic;
 
+  console.log('submitShipCheck2');
+  // Completed 1, process 2
+  if(this.username2.value) {
+    this.database.ref('users/usernames/' + this.username2.value).once('value', function(snapshot){
+      if(snapshot.exists()) {
+        second_un = this.username2.value;
+        second_pic = snapshot.val().photoURL;
+        // Success for the second set
+        // Call submit
+        this.submitShipToDatabase(first_un, first_pic, second_un, second_pic);
+      } else {
+        // Snackbar incomplete
+        return;
+      }
+    }.bind(this));
+  } else if (this.text2.value && this.picURI2) {
+    second_un = this.text2.value;
+    second_pic = this.img2.value;
+    // Success for the second set
+    // Call submit
+    this.submitShipToDatabase(first_un, first_pic, second_un, second_pic);
+  } else {
+    // Snackbar incomplete
+    return;
+  }
+};
 
-  // After receiving finished2, we should update the database
-  targetElem.addEventListener('finished2', function(event){
-    console.log('finished2');
-    var shipRef = this.database.ref('ships');
-    shipRef.push({
-      person1: {
-        username: first_un,
-        pic: first_pic
-      },
-      person2: {
-        username: second_un,
-        pic: second_pic
-      },
-      stars: [
-        this.auth.currentUser.uid
-      ]
-    });
-  }.bind(this), false);
-
+FriendlyChat.prototype.submitShipToDatabase = function(first_un, first_pic, second_un, second_pic) {
+  console.log('submitShipToDatabase');
+  var shipRef = this.database.ref('ships');
+  shipRef.push({
+    person1: {
+      username: first_un,
+      pic: first_pic
+    },
+    person2: {
+      username: second_un,
+      pic: second_pic
+    },
+    stars: [
+      this.auth.currentUser.uid
+    ]
+  });
 };
 
 window.onload = function() {
