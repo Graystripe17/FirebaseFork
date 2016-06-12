@@ -54,6 +54,7 @@
 
   <!--jQuery-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-rc1/jquery.min.js"></script>
+  <script>jQuery.noConflict();</script>
 
   <!--&lt;!&ndash;Bootstrap&ndash;&gt;-->
   <!--&lt;!&ndash; Latest compiled and minified CSS &ndash;&gt;-->
@@ -237,10 +238,12 @@
                 <label class="mdl-textfield__label" for="u1">Username</label>
               </div>
               <br/>
-              <i>or</i>
+              <div class="centered">
+                <i>or</i>
+              </div>
               <br/>
 
-              <img src="http://play.freeciv.org/blog/wp-content/themes/flymag/images/placeholder.png" class="profile-dimension" id="img1"/>
+              <img src="http://play.freeciv.org/blog/wp-content/themes/flymag/images/placeholder.png" class="profile-dimension picture-rounded-corners" id="img1"/>
 
               <!-- Name 1 -->
               <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
@@ -254,12 +257,39 @@
                   Choose Pic
                 </button>
               </form>
+            </div>
 
-            </div>
+
             <i class="material-icons">star</i>
-            <div id="second-ship" class="mdl-cell mdl-cell--5-col">
-              Duplicate first
+
+
+            <div id="second-ship" class="mdl-cell mdl-card mdl-shadow--2dp mdl-cell--5-col">
+              <div class="mdl-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="u2">
+                <label class="mdl-textfield__label" for="u2">Username</label>
+              </div>
+              <br/>
+              <div class="centered">
+                <i>or</i>
+              </div>
+              <br/>
+
+              <img src="http://play.freeciv.org/blog/wp-content/themes/flymag/images/placeholder.png" class="profile-dimension picture-rounded-corners" id="img2"/>
+
+              <!-- Name 2 -->
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="text2">
+                <label class="mdl-textfield__label" for="text2">Name</label>
+              </div>
+              <!-- Picture 2 -->
+              <form id="pic2-form" action="#">
+                <input id="pic2-input" type="file" accept="image/*,capture=camera" class="hidden-file-input">
+                <button id="pic2-button" title="Add a photo" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--amber-400 mdl-color-text--white">
+                  Choose Pic
+                </button>
+              </form>
             </div>
+
           </div>
           <button id="submit-ship" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text-white">
             Submit
