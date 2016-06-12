@@ -860,7 +860,7 @@ FriendlyChat.prototype.submitShip = function() {
   var first_un, first_pic;
   var second_un, second_pic;
 
-  var targetElem = this.submitShip;
+  var targetElem = this.submitShipButton;
 
   if(this.username1.value) {
     this.database.ref('users/usernames/' + this.username1.value).once('value', function(snapshot){
