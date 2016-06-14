@@ -39,6 +39,7 @@ function FriendlyChat() {
 
   this.chatAnchorLabel = document.getElementById('chat-anchor-label');
   this.profileAnchorLabel = document.getElementById('profile-anchor-label');
+  this.shipAnchorLabel = document.getElementById('ship-anchor-label');
 
   // 0 Sign Up Email
   this.anonToggle = document.getElementById('switch-1');
@@ -80,6 +81,7 @@ function FriendlyChat() {
   this.picButton2 = document.getElementById('pic2-button');
 
   this.submitShipButton = document.getElementById('submit-ship');
+  this.shipList = document.getElementById('ship-container');
 
 
 
@@ -101,6 +103,7 @@ function FriendlyChat() {
   this.signInEmailButton.addEventListener('click', this.signInEmail.bind(this));
   this.signUpButton.addEventListener('click', this.signUpEmail.bind(this));
   this.chatAnchorLabel.addEventListener('click', this.loadConversations.bind(this));
+  this.shipAnchorLabel.addEventListener('click', this.loadShips.bind(this));
   this.profileAnchorLabel.addEventListener('click', this.loadProfile.bind(this));
   this.updateProfileDataButton.addEventListener('click', this.updateProfileData.bind(this));
 
@@ -140,7 +143,6 @@ function FriendlyChat() {
   this.picInput2.addEventListener('change', this.uploadSecondPicture.bind(this));
 
   this.submitShipButton.addEventListener('click', this.submitShipCheck1.bind(this));
-
 
   // this.loadMessages();
 }
@@ -346,6 +348,9 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
       this.database.ref('uids/' + user.uid).once('value', function(snapshot){
         this.UN = snapshot.val().username;
         console.log('Grabbed from snapshot.username');
+        // When put here, we know firebase is done configuring
+        this.loadConversations();
+
         if(this.UN == undefined) {
           console.log('Impossible error');
         }
@@ -372,8 +377,6 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     this.signUpButton.setAttribute('hidden', 'true');
     this.signInEmailForm.setAttribute('hidden', 'true');
 
-    // When put here, we know firebase is done configuring
-    this.loadConversations();
 
   } else { // User is signed out!
     console.log("User is considered signed out");
@@ -429,6 +432,20 @@ FriendlyChat.CHAT_TEMPLATE =
     '<a class="mdl-list__item-secondary-action" href="#">' +
         '<i class="material-icons">star</i>' +
     '</a>';
+
+FriendlyChat.SHIP_TEMPLATE =
+    '<div class="ship1 mdl-cell mdl-card mdl-shadow--2dp mdl-cell--5-col">' +
+        '<img class="ship1-image" src="http://play.freeciv.org/blog/wp-content/themes/flymag/images/placeholder.png"/>' +
+        '<span class="name1"></span>' +
+    '</div>' +
+
+    '<span class="stars"><i class="material-icons">star</i></span>' +
+
+    '<div class="ship2 mdl-cell mdl-card mdl-shadow--2dp mdl-cell--5-col"></div>' +
+        '<img class="ship2-image" src="http://play.freeciv.org/blog/wp-content/themes/flymag/images/placeholder.png"/>' +
+        '<span class="name2"></span>' +
+    '</div>'
+    ;
 
 // A loading image URL.
 FriendlyChat.LOADING_IMAGE_URL = 'https://www.google.com/images/spin-32.gif';
@@ -878,7 +895,7 @@ FriendlyChat.prototype.submitShipCheck1 = function() {
     }.bind(this))
   } else if (this.text1.value && this.picURI1) {
     first_un = this.text1.value;
-    first_pic = this.img1.value;
+    first_pic = this.picURI1;
     // Success for the first set
     // Upon Completion, call function 2
     this.submitShipCheck2(first_un, first_pic);
@@ -909,7 +926,7 @@ FriendlyChat.prototype.submitShipCheck2 = function(first_un, first_pic) {
     }.bind(this));
   } else if (this.text2.value && this.picURI2) {
     second_un = this.text2.value;
-    second_pic = this.img2.value;
+    second_pic = this.picURI2;
     // Success for the second set
     // Call submit
     this.submitShipToDatabase(first_un, first_pic, second_un, second_pic);
@@ -933,8 +950,54 @@ FriendlyChat.prototype.submitShipToDatabase = function(first_un, first_pic, seco
     },
     stars: [
       this.auth.currentUser.uid
-    ]
-  });
+    ],
+    starCount: 1
+  }).then(
+      this.resetShipForm.bind(this)
+  );
+};
+
+FriendlyChat.prototype.resetShipForm = function() {
+  this.picForm1.reset();
+  this.picForm2.reset();
+  this.text1.value = "";
+  this.text2.value = "";
+  this.username1.value = "";
+  this.username2.value = "";
+};
+
+FriendlyChat.prototype.loadShips = function() {
+  var shipsRef = this.database.ref('ships').orderByChild('starCount').limitToFirst(100);
+  shipsRef.once('value', function(snapshot) {
+    snapshot.forEach(function(node){
+      var nodeVal = node.val();
+      var name1 = nodeVal.person1.name;
+      var pic1 = nodeVal.person1.pic;
+      var name2 = nodeVal.person2.name;
+      var pic2 = nodeVal.person2.pic;
+      var starCount = nodeVal.starCount;
+
+      var div = document.getElementById(node.key);
+
+      if(!div) {
+        var container = document.createElement('div');
+        container.innerHTML = FriendlyChat.SHIP_TEMPLATE;
+        div = container;
+        div.setAttribute('id', node.key);
+        this.shipList.appendChild(div);
+      }
+
+      div.querySelector('span.name1').innerHTML = name1;
+      div.querySelector('.ship1-image').src = pic1;
+      div.querySelector('.name2').innerHTML = name2;
+      div.querySelector('.ship2-image').src = pic2;
+      div.querySelector('.stars').innerHTML += starCount;
+
+
+
+
+    }.bind(this));
+  }.bind(this));
 };
 
 window.onload = function() {
