@@ -235,3 +235,16 @@ main, #messages-card {
   display: flex;
   flex-direction: row;
 }
+
+.material-icons {
+  margin-right: -10px;
+}
+
+.floater {
+  z-index: 100;
+}
+
+.winston-card-square {
+  background-repeat: no-repeat;
+  background-position: right;
+}

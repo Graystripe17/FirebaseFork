@@ -7,6 +7,7 @@ function SignUp() {
     this.emailInput = document.getElementById('email-input');
     this.locationInput = document.getElementById('location-input');
     this.passwordInput = document.getElementById('password-input');
+    this.signUpSnackbar = document.getElementById('signup-snackbar');
 
     this.submitForm.addEventListener('submit', this.submit.bind(this));
 
@@ -36,6 +37,14 @@ SignUp.prototype.submit = function(e) {
             console.log('Username exists already');
             // Alert the user that the username is invalid
             // Invalidate the rest of the submit function
+
+            var data = {
+                message: 'Username already exists',
+                timeout: 2000
+            };
+            this.signUpSnackbar.MaterialSnackbar.showSnackbar(data);
+
+
             enteredUserName = null;
         }
     }.bind(this));
@@ -75,6 +84,12 @@ SignUp.prototype.submit = function(e) {
                         "Is this our fault?\n" +
                         'If you could kindly contact us with your web browser and any details, we will do our best to fix it. Thanks');
             });
+    } else {
+        var data = {
+            message: 'Sorry! Email, Password, or Username is invalid.',
+            timeout: 2000
+        };
+        this.signUpSnackbar.MaterialSnackbar.showSnackbar(data);
     }
 
 };

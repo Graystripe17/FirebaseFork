@@ -48,6 +48,7 @@ function FriendlyChat() {
   this.emailInputField = document.getElementById('email-input');
   this.passwordInputField = document.getElementById('password-input');
   this.signInEmailForm = document.getElementById('sign-in-email-form');
+  this.signUpFloatIcon = document.getElementById('sign-up-float-icon');
 
   // 1 Chat
   this.conversationList = document.getElementById('chats');
@@ -355,8 +356,12 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
           console.log('Impossible error');
         }
       }.bind(this)).catch(function(err){
-        console.log('Error obtaining userID from database', err);
         this.UN = user.displayName || "User" + user.uid;
+        var data = {
+          message: 'Sorry, an error occurred',
+          timeout: 2000
+        };
+        this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
       }.bind(this));
     } else {
       console.log(this.UN);
@@ -376,6 +381,7 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     this.signInEmailButton.setAttribute('hidden', 'true');
     this.signUpButton.setAttribute('hidden', 'true');
     this.signInEmailForm.setAttribute('hidden', 'true');
+    this.signUpFloatIcon.setAttribute('hidden', 'true');
 
 
   } else { // User is signed out!
@@ -391,6 +397,7 @@ FriendlyChat.prototype.onAuthStateChanged = function(user) {
     this.signInEmailButton.removeAttribute('hidden');
     this.signInEmailForm.removeAttribute('hidden');
     this.signUpButton.removeAttribute('hidden');
+    this.signUpFloatIcon.removeAttribute('hidden');
 
   }
 };
@@ -594,12 +601,20 @@ FriendlyChat.prototype.queryUsers = function(e) {
         var selected_user_display_name = queryText;
         this.displayNameText.innerHTML = selected_user_display_name;
         this.locationText.innerHTML = found_user.location;
-        this.resultCard.style.backgroundImage = 'url(' + found_user.photoURL + '); background-repeat: no-repeat; background-position: right;';
+        this.resultCard.style.backgroundImage = 'url(' + found_user.photoURL + ')';
         this.resultCard.removeAttribute('hidden');
         // Overwrite by linking them to profile
         this.anonChatButton.onclick = function(){
           // Another solution would involve adding and subtracting is-active class attributes
           console.log('Switching to chat');
+          if(!this.checkSignedInWithMessage()) {
+            var data = {
+              message: 'You must sign-in first',
+              timeout: 2000
+            };
+            this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
+            return;
+          }
           this.startNewChat(selected_user_display_name, found_user.photoURL);
           this.chatAnchorLabel.click();
         }.bind(this);
@@ -707,7 +722,6 @@ FriendlyChat.prototype.displayConversation = function(key, isHost, profileName, 
   }
   // Need to pass in function
   div.addEventListener('click', function(){
-    console.log("WTF");
     this.loadMessages(key);
   }.bind(this));
 };
@@ -718,16 +732,18 @@ FriendlyChat.prototype.clearMessages = function() {
 
 FriendlyChat.prototype.loadProfile = function() {
   console.log('loadProfile');
-  this.editUsernameField.setAttribute('value', this.UN);
-  var metaUserRef = this.database.ref('users/usernames/' + this.UN);
-  metaUserRef.once('value').then(function(snapshot){
-    console.log(snapshot.val().photoURL);
-    var location = snapshot.val().location;
-    this.editLocationField.setAttribute('value', location);
-    // TODO: Refactor using this.PIC
-    var profileUrl = snapshot.val().photoURL;
-    this.setImageUrl(profileUrl, this.profilePic); // Converts from gs:// to downloadable
-  }.bind(this));
+  if(this.checkSignedInWithMessage()) {
+    this.editUsernameField.setAttribute('value', this.UN);
+    var metaUserRef = this.database.ref('users/usernames/' + this.UN);
+    metaUserRef.once('value').then(function (snapshot) {
+      console.log(snapshot.val().photoURL);
+      var location = snapshot.val().location;
+      this.editLocationField.setAttribute('value', location);
+      // TODO: Refactor using this.PIC
+      var profileUrl = snapshot.val().photoURL;
+      this.setImageUrl(profileUrl, this.profilePic); // Converts from gs:// to downloadable
+    }.bind(this));
+  }
 };
 
 FriendlyChat.prototype.updateProfileData = function() {
@@ -751,6 +767,11 @@ FriendlyChat.prototype.updateProfileData = function() {
     this.database.ref('users/usernames').update(updates);
     this.UN = newUsername;
     console.log('Update queued. Changes to Username may take time to reflect');
+    var data = {
+      message: 'Update queued. Changes to Username may take time to reflect',
+      timeout: 2000
+    };
+    this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
   }
 
 
@@ -786,7 +807,8 @@ FriendlyChat.prototype.changeProfilePicture = function(event) {
       message: 'Sorry! You can currently only use images',
       timeout: 2000
     };
-    // Snackbar
+    this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
+
     return;
   }
 
@@ -826,7 +848,7 @@ FriendlyChat.prototype.uploadFirstPicture = function(event) {
       message: 'Sorry! You can currently only use images',
       timeout: 2000
     };
-    // Snackbar
+    this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
     return;
   }
 
@@ -857,7 +879,7 @@ FriendlyChat.prototype.uploadSecondPicture = function(event) {
       message: 'Sorry! You can currently only use images',
       timeout: 2000
     };
-    // Snackbar
+    this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
     return;
   }
 
@@ -892,7 +914,11 @@ FriendlyChat.prototype.submitShipCheck1 = function() {
         this.submitShipCheck2(first_un, first_pic);
       } else {
         console.log('User doesnt exist');
-        // Snackbar incomplete
+        var data = {
+          message: 'Username does not exist (case-sensitive)',
+          timeout: 2000
+        };
+        this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
         return;
       }
     }.bind(this))
@@ -903,7 +929,11 @@ FriendlyChat.prototype.submitShipCheck1 = function() {
     // Upon Completion, call function 2
     this.submitShipCheck2(first_un, first_pic);
   } else {
-    // Snackbar incomplete
+    var data = {
+      message: 'Fill in column 1',
+      timeout: 2000
+    };
+    this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
     return;
   }
 
@@ -923,7 +953,11 @@ FriendlyChat.prototype.submitShipCheck2 = function(first_un, first_pic) {
         // Call submit
         this.submitShipToDatabase(first_un, first_pic, second_un, second_pic);
       } else {
-        // Snackbar incomplete
+        var data = {
+          message: 'Username does not exist (case-sensitive)',
+          timeout: 2000
+        };
+        this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
         return;
       }
     }.bind(this));
@@ -934,7 +968,11 @@ FriendlyChat.prototype.submitShipCheck2 = function(first_un, first_pic) {
     // Call submit
     this.submitShipToDatabase(first_un, first_pic, second_un, second_pic);
   } else {
-    // Snackbar incomplete
+    var data = {
+      message: 'Fill in column 2',
+      timeout: 2000
+    };
+    this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
     return;
   }
 };
@@ -970,6 +1008,12 @@ FriendlyChat.prototype.resetShipForm = function() {
 };
 
 FriendlyChat.prototype.loadShips = function() {
+
+  if(!this.checkSignedInWithMessage()) {
+    // Load nothing, user has been told to login
+    return;
+  }
+
   var shipsRef = this.database.ref('ships').orderByChild('starCount').limitToFirst(100);
   shipsRef.once('value', function(snapshot) {
     snapshot.forEach(function(node){
@@ -994,7 +1038,7 @@ FriendlyChat.prototype.loadShips = function() {
       this.setImageUrl(pic1, div.querySelector('.ship1-image'));
       div.querySelector('.name2').innerHTML = name2;
       this.setImageUrl(pic2, div.querySelector('.ship2-image'));
-      div.querySelector('.stars').innerHTML += starCount;
+      //div.querySelector('.stars').innerHTML += starCount;
 
 
 

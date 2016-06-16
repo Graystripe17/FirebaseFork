@@ -42,7 +42,7 @@
 
   <!-- Material Design Lite -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css">
+  <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.lime-indigo.min.css">
   <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
 
   <!-- App Styling -->
@@ -79,7 +79,7 @@
   <header class="mdl-layout__header mdl-color-text--white mdl-color--light-blue-700">
     <div class="mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-grid">
       <div class="mdl-layout__header-row mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
-        <h3><i class="material-icons">chat_bubble_outline</i> Shippy McShipFace</h3>
+        <h3><i class="material-icons">chat_bubble_outline</i> ShipThem.Me</h3>
       </div>
       <div id="user-container">
         <div hidden id="user-pic"></div>
@@ -89,35 +89,47 @@
         </button>
 
 
-        <button hidden id="sign-in-google" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white">
-          <i class="material-icons">account_circle</i>Sign-in with Google
-        </button>
-        <!--Sign In-->
+        <!-- Login -->
         <div id="sign-in-email-form">
           <form>
-            <label>Email </label>
-              <input id="email-input" type="email"/>
-            <label>Password </label>
-              <input id="password-input" type="password"/>
-            <button id="sign-in-email" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white"><i class="material-icons">face</i>Sign Up</button>
+              <input id="email-input" type="email" placeholder="Email"/>
+              <input id="password-input" type="password" placeholder="Password"/>
+            <button id="sign-in-email" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white"><i class="material-icons">face</i>Login</button>
           </form>
         </div>
 
-        <button hidden id="sign-up-email" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--orange">
-          Sign Up with Email
+
+
+        <!-- Sign Up options -->
+        <!--<button hidden id="sign-up-email" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text&#45;&#45;white">-->
+          <!--Sign Up with Email-->
+        <!--</button>-->
+        <!--<button hidden id="sign-in-google" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text&#45;&#45;white">-->
+          <!--<i class="material-icons">account_circle</i>Login with Google-->
+        <!--</button>-->
+
+
+
+        <button hidden id="sign-up-float-icon" class="floater mdl-button mdl-js-button mdl-button--icon">
+          <i class="material-icons">more_vert</i>
         </button>
+
+        <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="sign-up-float-icon">
+          <li class="mdl-menu__item" id="sign-up-email">
+            Register with Email
+          </li>
+          <li class="mdl-menu__item" id="sign-in-google">
+            Login with Google
+          </li>
+        </ul>
 
       </div>
     </div>
   </header>
 
   <!--TABS-->
-  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header" style="z-index:0">
     <header class="mdl-layout__header">
-      <div class="mdl-layout__header-row">
-        <!-- Title -->
-        <span class="mdl-layout-title">ShipThem.me</span>
-      </div>
       <!-- Tabs -->
       <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
         <a href="#chat" id="chat-anchor-label" class="mdl-layout__tab is-active">Chat</a>
@@ -126,10 +138,10 @@
         <a href="#profile" id="profile-anchor-label" class="mdl-layout__tab">Profile</a>
       </div>
     </header>
-    <!--<div class="mdl-layout__drawer">-->
-      <!--<span class="mdl-layout-title">Title</span>-->
-    <!--</div>-->
+
+    <!-- Tab Contents-->
     <main class="mdl-layout__content">
+
       <!--Content-->
       <section class="mdl-layout__tab-panel is-active" id="chat">
         <div class="page-content">
@@ -170,20 +182,16 @@
                     </button>
                   </form>
 
-                  <label id="anon" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1">
-                    <input type="checkbox" id="switch-1" class="mdl-switch__input">
-                    <span class="mdl-switch__label">Anon</span>
-                  </label>
-                  <label id="public" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1" >
-                    <input type="checkbox" id="switch-2" class="mdl-switch__input">
-                    <span class="mdl-switch__label">Public</span>
-                  </label>
+                  <!-- Option to switch on and off Anon and Public -->
+                  <!--<label id="anon" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1">-->
+                    <!--<input type="checkbox" id="switch-1" class="mdl-switch__input">-->
+                    <!--<span class="mdl-switch__label">Anon</span>-->
+                  <!--</label>-->
+                  <!--<label id="public" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1" >-->
+                    <!--<input type="checkbox" id="switch-2" class="mdl-switch__input">-->
+                    <!--<span class="mdl-switch__label">Public</span>-->
+                  <!--</label>-->
                 </div>
-              </div>
-
-              <div id="must-signin-snackbar" class="mdl-js-snackbar mdl-snackbar">
-                <div class="mdl-snackbar__text"></div>
-                <button class="mdl-snackbar__action" type="button"></button>
               </div>
 
             </div>
@@ -222,7 +230,6 @@
           <!-- end result list -->
         </div>
       </section>
-
 
       <!--Ship-->
       <section class="mdl-layout__tab-panel" id="ship">
@@ -292,7 +299,7 @@
           </button>
 
           <div id="ship-container">
-            <h2><span>Relevant</span></h2>
+            <h4><span>Relevant</span></h4>
           </div>
         </div>
       </section>
@@ -306,7 +313,7 @@
           <!--Find someone you like-->
           <div class="mdl-card mdl-shadow--2dp">
 
-            <img id="profile-pic" class="profile-pic" src="https://www.google.com/images/spin-32.gif"/>
+            <img id="profile-pic" class="medium-profile-pic picture-rounded-corners" src="https://www.google.com/images/spin-32.gif"/>
 
             <form id="profile-pic-form" action="#">
               <input id="profile-pic-input" type="file" accept="image/*,capture=camera" class="hidden-file-input">
@@ -340,6 +347,13 @@
 
         </div>
       </section>
+
+
+      <div id="must-signin-snackbar" class="mdl-js-snackbar mdl-snackbar">
+        <div class="mdl-snackbar__text"></div>
+        <button class="mdl-snackbar__action" type="button"></button>
+      </div>
+
     </main>
   </div>
 
