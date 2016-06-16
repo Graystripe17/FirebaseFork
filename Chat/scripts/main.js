@@ -434,17 +434,19 @@ FriendlyChat.CHAT_TEMPLATE =
     '</a>';
 
 FriendlyChat.SHIP_TEMPLATE =
-    '<div class="ship1 mdl-cell mdl-card mdl-shadow--2dp mdl-cell--5-col">' +
-        '<img class="ship1-image" src="http://play.freeciv.org/blog/wp-content/themes/flymag/images/placeholder.png"/>' +
-        '<span class="name1"></span>' +
-    '</div>' +
+    '<span class="ship">' +
+        '<div class="ship1 mdl-cell mdl-card mdl-shadow--2dp mdl-cell--5-col">' +
+            '<img class="ship1-image medium-profile-pic picture-rounded-corners" src="http://play.freeciv.org/blog/wp-content/themes/flymag/images/placeholder.png"/>' +
+            '<span class="name1"></span>' +
+        '</div>' +
 
-    '<span class="stars"><i class="material-icons">star</i></span>' +
+        '<span class="stars"><i class="material-icons">star</i></span>' +
 
-    '<div class="ship2 mdl-cell mdl-card mdl-shadow--2dp mdl-cell--5-col"></div>' +
-        '<img class="ship2-image" src="http://play.freeciv.org/blog/wp-content/themes/flymag/images/placeholder.png"/>' +
-        '<span class="name2"></span>' +
-    '</div>'
+        '<div class="ship2 mdl-cell mdl-card mdl-shadow--2dp mdl-cell--5-col">' +
+            '<img class="ship2-image medium-profile-pic picture-rounded-corners" src="http://play.freeciv.org/blog/wp-content/themes/flymag/images/placeholder.png"/>' +
+            '<span class="name2"></span>' +
+        '</div>' +
+    '</span>'
     ;
 
 // A loading image URL.
@@ -592,7 +594,8 @@ FriendlyChat.prototype.queryUsers = function(e) {
         var selected_user_display_name = queryText;
         this.displayNameText.innerHTML = selected_user_display_name;
         this.locationText.innerHTML = found_user.location;
-        this.resultCard.style.backgroundImage = 'url(' + found_user.photoURL + ')';
+        this.resultCard.style.backgroundImage = 'url(' + found_user.photoURL + '); background-repeat: no-repeat; background-position: right;';
+        this.resultCard.removeAttribute('hidden');
         // Overwrite by linking them to profile
         this.anonChatButton.onclick = function(){
           // Another solution would involve adding and subtracting is-active class attributes
@@ -971,9 +974,9 @@ FriendlyChat.prototype.loadShips = function() {
   shipsRef.once('value', function(snapshot) {
     snapshot.forEach(function(node){
       var nodeVal = node.val();
-      var name1 = nodeVal.person1.name;
+      var name1 = nodeVal.person1.username;
       var pic1 = nodeVal.person1.pic;
-      var name2 = nodeVal.person2.name;
+      var name2 = nodeVal.person2.username;
       var pic2 = nodeVal.person2.pic;
       var starCount = nodeVal.starCount;
 
@@ -988,9 +991,9 @@ FriendlyChat.prototype.loadShips = function() {
       }
 
       div.querySelector('span.name1').innerHTML = name1;
-      div.querySelector('.ship1-image').src = pic1;
+      this.setImageUrl(pic1, div.querySelector('.ship1-image'));
       div.querySelector('.name2').innerHTML = name2;
-      div.querySelector('.ship2-image').src = pic2;
+      this.setImageUrl(pic2, div.querySelector('.ship2-image'));
       div.querySelector('.stars').innerHTML += starCount;
 
 

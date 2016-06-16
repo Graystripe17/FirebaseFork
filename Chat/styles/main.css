@@ -127,6 +127,7 @@ main, #messages-card {
   background: linear-gradient(white, #f9f9f9);
   justify-content: space-between;
 }
+
 #user-container {
   position: absolute;
   display: flex;
@@ -217,10 +218,20 @@ main, #messages-card {
   height: 50px;
 }
 
+.medium-profile-pic {
+  width: 100px;
+  height: 100px;
+}
+
 .picture-rounded-corners {
-  border-radius: 15px;
+  border-radius: 10px;
 }
 
 .centered {
   text-align: center;
+}
+
+.ship {
+  display: flex;
+  flex-direction: row;
 }
