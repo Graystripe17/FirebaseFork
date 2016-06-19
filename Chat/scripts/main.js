@@ -42,8 +42,8 @@ function FriendlyChat() {
   this.shipAnchorLabel = document.getElementById('ship-anchor-label');
 
   // 0 Sign Up Email
-  this.anonToggle = document.getElementById('switch-1');
-  this.publicToggle = document.getElementById('switch-2');
+  //this.anonToggle = document.getElementById('switch-1');
+  //this.publicToggle = document.getElementById('switch-2');
   this.signInEmailButton = document.getElementById('sign-in-email');
   this.emailInputField = document.getElementById('email-input');
   this.passwordInputField = document.getElementById('password-input');
@@ -108,8 +108,8 @@ function FriendlyChat() {
   this.profileAnchorLabel.addEventListener('click', this.loadProfile.bind(this));
   this.updateProfileDataButton.addEventListener('click', this.updateProfileData.bind(this));
 
-  this.anonToggle.addEventListener('change', this.toggleAnon.bind(this));
-  this.publicToggle.addEventListener('change', this.togglePublic.bind(this));
+  //this.anonToggle.addEventListener('change', this.toggleAnon.bind(this));
+  //this.publicToggle.addEventListener('change', this.togglePublic.bind(this));
   this.findForm.addEventListener('submit', this.queryUsers.bind(this));
 
   // Toggle for the button.
@@ -172,11 +172,10 @@ FriendlyChat.prototype.loadMessages = function(chatID) {
   // Loads the last 12 messages and listen for new ones.
   // data represents a messageID
   var setMessage = function(data) {
-    console.log('setMessage');
     var val = data.val();
     this.displayMessage(data.key, val.name, val.text, val.photoUrl, val.imageUrl);
-    console.log(val.imageUrl);
   }.bind(this);
+  console.log("LIMITTOLAST");
   this.messagesRef.limitToLast(12).on('child_added', setMessage);
   this.messagesRef.limitToLast(12).on('child_changed', setMessage);
 };
@@ -665,7 +664,8 @@ FriendlyChat.prototype.loadConversations = function() {
   if(this.checkSignedInWithMessage()) {
 
     var userChatRef = this.database.ref('users/usernames/' + this.UN + '/chats');
-
+    // Remove all previous listeners
+    userChatRef.off();
 
     // Dynamic updates
     var setConversation = function(data){
