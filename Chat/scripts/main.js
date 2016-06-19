@@ -434,10 +434,8 @@ FriendlyChat.CHAT_TEMPLATE =
         '<div class="spacing"><div class="meta-pic"</div></div>' +
         '<div class="last-message"></div>' +
         '<div class="meta-name"></div>' +
-    '</div>' +
-    '<a class="mdl-list__item-secondary-action" href="#">' +
-        '<i class="material-icons">star</i>' +
-    '</a>';
+        '<br/><br/>' +
+    '</div>';
 
 FriendlyChat.SHIP_TEMPLATE =
     '<span class="ship">' +

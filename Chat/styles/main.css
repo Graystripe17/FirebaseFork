@@ -248,3 +248,7 @@ main, #messages-card {
   background-repeat: no-repeat;
   background-position: right;
 }
+
+.van-pad {
+  padding: 10px;
+}
