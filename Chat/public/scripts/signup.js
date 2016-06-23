@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 function SignUp() {
     this.submitForm = document.getElementById('submitForm');

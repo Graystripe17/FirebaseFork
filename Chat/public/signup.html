@@ -12,7 +12,7 @@
     <meta name="msapplication-tap-highlight" content="no">
 
     <!-- Web Application Manifest -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="../manifest.json">
 
     <!-- Add to homescreen for Chrome on Android -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -42,36 +42,61 @@
     <!--jQuery-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-rc1/jquery.min.js"></script>
 
+    <!-- Places open source library-->
+    <script src="https://cdn.jsdelivr.net/places.js/1/places.min.js"></script>
+
+
 </head>
 <body>
+    <style>
+        .van-input {
+            width: 400px;
+        }
+    </style>
     <div id="messages-card" class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--6-col-tablet mdl-cell--6-col-desktop">
         <div class="mdl-card__supporting-text mdl-color-text--grey-600">
         <form id="submitForm">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label">
-                <input id="email-input" class="mdl-textfield__input" type="email"/>
+                <input id="email-input" class="mdl-textfield__input van-input" type="email"/>
                 <label class="mdl-textfield__label" for="email-input">Email</label>
                 <div class="mdl-tooltip mdl-tooltip--right" for="email-input">
                     Private
                 </div>
             </div>
+
+            <br/>
+
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label">
-                <input id="username-input" class="mdl-textfield__input" type="text"/>
+                <input id="username-input" class="mdl-textfield__input van-input" type="text"/>
                 <label class="mdl-textfield__label" for="username-input">Username</label>
                 <div class="mdl-tooltip mdl-tooltip--right" for="username-input">
                     Case-Sensitive
                 </div>
             </div>
+
+            <br/>
+
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label">
-                <input id="location-input" class="mdl-textfield__input" type="text"/>
+                <input id="location-input" class="mdl-textfield__input van-input" type="text"/>
                 <label class="mdl-textfield__label" for="location-input">Location Study/Work</label>
                 <div class="mdl-tooltip mdl-tooltip--right" for="location-input">
                     For others to know<br/>if anonymous
                 </div>
             </div>
+            <script type="text/javascript">
+                var placesAutocomplete = places({
+                    container: document.querySelector('#location-input')
+                });
+            </script>
+
+            <br/>
+
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label">
-                <input id="password-input" class="mdl-textfield__input" type="password"/>
+                <input id="password-input" class="mdl-textfield__input van-input" type="password"/>
                 <label class="mdl-textfield__label" for="password-input">Password</label>
             </div>
+
+            <br/>
 
             <button id="submitButton" class="mdl-button mdl-js-button mdl-ripple-effect">
                 Submit

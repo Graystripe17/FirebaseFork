@@ -146,6 +146,7 @@ function FriendlyChat() {
   this.submitShipButton.addEventListener('click', this.submitShipCheck1.bind(this));
 
   // this.loadMessages();
+
 }
 
 // Sets up shortcuts to Firebase features and initiate firebase auth.
@@ -155,6 +156,7 @@ FriendlyChat.prototype.initFirebase = function() {
   this.database = firebase.database();
   this.storage = firebase.storage();
   this.auth.onAuthStateChanged(this.onAuthStateChanged.bind(this));
+  // this.database.enableLogging(true);
 };
 
 // Loads chat messages history and listens for upcoming ones.
@@ -162,6 +164,7 @@ FriendlyChat.prototype.loadMessages = function(chatID) {
   console.log('loadMessages', chatID);
 
   this.messagesApp.removeAttribute('hidden');
+
   this.conversationsApp.setAttribute('hidden', 'true');
   this.clearMessages();
 
@@ -433,8 +436,8 @@ FriendlyChat.CHAT_TEMPLATE =
     '<div class="chat-container">' +
         '<div class="spacing"><div class="meta-pic"</div></div>' +
         '<div class="last-message"></div>' +
-        '<div class="meta-name"></div>' +
-        '<br/><br/>' +
+        '<div class="meta-name van-pad"></div>' +
+        '<br/>' +
     '</div>';
 
 FriendlyChat.SHIP_TEMPLATE =
@@ -679,8 +682,10 @@ FriendlyChat.prototype.loadConversations = function() {
       );
     }.bind(this);
     // Puts a listener function on the list and displays each item (iterates)
+
     userChatRef.limitToLast(12).on('child_added', setConversation);
     userChatRef.limitToLast(12).on('child_changed', setConversation);
+
   }
 
 };
@@ -725,7 +730,7 @@ FriendlyChat.prototype.displayConversation = function(key, isHost, profileName, 
 };
 
 FriendlyChat.prototype.clearMessages = function() {
-  jQuery('.message-container').remove();
+  //jQuery('.message-container').remove();
 };
 
 FriendlyChat.prototype.loadProfile = function() {

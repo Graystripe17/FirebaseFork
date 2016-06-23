@@ -17,13 +17,13 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="description" content="Learn how to use the Firebase platform on the Web">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Fork</title>
+  <title>ShipThem.me</title>
 
   <!-- Disable tap highlight on IE -->
   <meta name="msapplication-tap-highlight" content="no">
 
   <!-- Web Application Manifest -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="../manifest.json">
 
   <!-- Add to homescreen for Chrome on Android -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -52,9 +52,13 @@
 
 
 
-  <!--jQuery-->
+  <!-- jQuery -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-rc1/jquery.min.js"></script>
   <script>jQuery.noConflict();</script>
+
+
+  <!-- Favicon -->
+  <link href="images/favicon.svg" rel="icon" type="images/favicon" />
 
   <!--&lt;!&ndash;Bootstrap&ndash;&gt;-->
   <!--&lt;!&ndash; Latest compiled and minified CSS &ndash;&gt;-->
@@ -79,7 +83,7 @@
   <header class="mdl-layout__header mdl-color-text--white mdl-color--light-blue-700">
     <div class="mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-grid">
       <div class="mdl-layout__header-row mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
-        <h3><i class="material-icons">chat_bubble_outline</i> ShipThem.Me</h3>
+        <h3><i class="material-icons">chat_bubble_outline</i>&nbsp;ShipThem.Me</h3>
       </div>
       <div id="user-container">
         <div hidden id="user-pic"></div>
@@ -110,7 +114,7 @@
 
 
 
-        <button hidden id="sign-up-float-icon" class="floater mdl-button mdl-js-button mdl-button--icon">
+        <button id="sign-up-float-icon" class="floater mdl-button mdl-js-button mdl-button--icon">
           <i class="material-icons">more_vert</i>
         </button>
 
@@ -203,7 +207,7 @@
         <!--Find-->
         <div class="page-content">
           <!--start search form -->
-          <form id="find-form" action="#">
+          <form id="find-form" action="#" class="van-pad">
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label">
               <input class="mdl-textfield__input" type="text" id="query">
               <label class="mdl-textfield__label" for="query">Find People</label>

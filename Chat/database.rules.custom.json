@@ -1,0 +1,39 @@
+{
+  "rules": {
+    ".read": true,
+    "users": {
+      "usernames": {
+        "$username":{
+          ".write": true,
+          //".write": "!data.exists() || !newData.exists()",
+          "chats":{
+            ".write": true
+          },
+          "location":{
+            ".write": true
+          }
+        }
+      }
+    },
+    "chats": {
+      ".read": true,
+      ".write": true
+    },
+    "messages": {
+      ".read": true,
+      ".write": true
+    },
+    "crushes": {
+      ".read": true,
+      ".write": true
+    },
+    "uids": {
+      ".read": true,
+      ".write": true
+    },
+    "ships": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
