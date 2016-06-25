@@ -566,6 +566,12 @@ FriendlyChat.prototype.signInEmail = function() {
     var errorCode = error.code;
     var errorMessage = error.message;
     console.log(errorCode, errorMessage);
+
+    var data = {
+      message: 'Login Failed',
+      timeout: 2000
+    };
+    this.signInSnackbar.MaterialSnackbar.showSnackbar(data);
   });
 
 };
